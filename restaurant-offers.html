@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Food Offers Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .connect-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .connect-btn:active {
+            transform: scale(0.95);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            color: white;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .offer-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+
+        .offer-card:active {
+            transform: scale(0.98);
+            background: #e9ecef;
+        }
+
+        .offer-card.birthday {
+            border-left-color: #ff6b6b;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
+        }
+
+        .offer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .restaurant-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            flex: 1;
+        }
+
+        .expires-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .expires-badge.soon {
+            background: #ff6b6b;
+        }
+
+        .expires-badge.medium {
+            background: #ffa500;
+        }
+
+        .expires-badge.later {
+            background: #51cf66;
+        }
+
+        .offer-preview {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .offer-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 0;
+        }
+
+        .offer-card.expanded .offer-details {
+            max-height: 500px;
+            margin-top: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 10px 0;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .count-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍔 Food Offers Tracker</h1>
+            <p>Never miss a restaurant deal!</p>
+        </header>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="connectBtn" class="connect-btn">Connect Gmail</button>
+            <div id="status" class="status"></div>
+        </div>
+
+        <div id="birthdaySection" class="section" style="display: none;">
+            <div class="section-header">
+                <span class="section-icon">🎂</span>
+                <span class="section-title">Birthday Offers</span>
+                <span id="birthdayCount" class="count-badge">0</span>
+            </div>
+            <div id="birthdayOffers"></div>
+        </div>
+
+        <div id="regularSection" class="section" style="display: none;">
+            <div class="section-header">
+                <span class="section-icon">🍽️</span>
+                <span class="section-title">All Offers</span>
+                <span id="regularCount" class="count-badge">0</span>
+            </div>
+            <div id="regularOffers"></div>
+        </div>
+
+        <button id="refreshBtn" class="refresh-btn" style="display: none;">🔄 Refresh Offers</button>
+    </div>
+
+    <script>
+        const CLIENT_ID = 'ryanyatwork@gmail.com';
+        const API_KEY = 'AIzaSyDf2BRoiu_PIVX53Vwo9JgxpwjyLzDuz40';
+        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        // Load Google API
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+            });
+            gapiInited = true;
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '',
+            });
+            gisInited = true;
+        }
+
+        document.getElementById('connectBtn').addEventListener('click', handleAuthClick);
+        document.getElementById('refreshBtn').addEventListener('click', scanEmails);
+
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                document.getElementById('status').textContent = 'Connected! Scanning emails...';
+                document.getElementById('connectBtn').disabled = true;
+                await scanEmails();
+            };
+
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+
+        async function scanEmails() {
+            try {
+                document.getElementById('status').textContent = 'Scanning your emails...';
+                
+                // Search for food-related emails from the past year
+                const queries = [
+                    'subject:(offer OR deal OR coupon OR discount OR free) (restaurant OR food OR dining OR pizza OR burger OR cafe OR coffee)',
+                    'birthday (restaurant OR dining OR food OR free)',
+                    'from:(doordash OR ubereats OR grubhub OR restaurant OR dine)',
+                    'reward points (restaurant OR food OR dining)'
+                ];
+
+                let allOffers = [];
+                
+                for (let query of queries) {
+                    const response = await gapi.client.gmail.users.messages.list({
+                        userId: 'me',
+                        q: query,
+                        maxResults: 50
+                    });
+
+                    if (response.result.messages) {
+                        for (let message of response.result.messages) {
+                            const details = await gapi.client.gmail.users.messages.get({
+                                userId: 'me',
+                                id: message.id,
+                                format: 'full'
+                            });
+                            
+                            const offer = parseEmailForOffer(details.result);
+                            if (offer) {
+                                allOffers.push(offer);
+                            }
+                        }
+                    }
+                }
+
+                // Remove duplicates based on restaurant name and offer
+                allOffers = removeDuplicates(allOffers);
+                
+                // Separate birthday offers
+                const birthdayOffers = allOffers.filter(o => o.isBirthday);
+                const regularOffers = allOffers.filter(o => !o.isBirthday);
+
+                // Sort by expiration date
+                birthdayOffers.sort((a, b) => a.expiresDate - b.expiresDate);
+                regularOffers.sort((a, b) => a.expiresDate - b.expiresDate);
+
+                displayOffers(birthdayOffers, regularOffers);
+                
+                document.getElementById('status').textContent = `Found ${allOffers.length} offers!`;
+                document.getElementById('refreshBtn').style.display = 'block';
+                
+            } catch (err) {
+                document.getElementById('status').textContent = 'Error scanning emails. Please try again.';
+                console.error('Error:', err);
+            }
+        }
+
+        function parseEmailForOffer(message) {
+            const headers = message.payload.headers;
+            const subject = headers.find(h => h.name === 'Subject')?.value || '';
+            const from = headers.find(h => h.name === 'From')?.value || '';
+            const date = new Date(parseInt(message.internalDate));
+            
+            // Get email body
+            let body = '';
+            if (message.payload.body.data) {
+                body = atob(message.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+            } else if (message.payload.parts) {
+                for (let part of message.payload.parts) {
+                    if (part.mimeType === 'text/plain' || part.mimeType === 'text/html') {
+                        if (part.body.data) {
+                            body += atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+                        }
+                    }
+                }
+            }
+
+            // Check if it's food-related
+            const foodKeywords = ['restaurant', 'food', 'pizza', 'burger', 'coffee', 'dining', 'meal', 'cafe', 'eat', 'sushi', 'taco', 'sandwich', 'delivery'];
+            const offerKeywords = ['offer', 'deal', 'coupon', 'discount', 'free', 'off', '%', 'save', 'reward', 'promo'];
+            
+            const text = (subject + ' ' + body + ' ' + from).toLowerCase();
+            
+            const hasFood = foodKeywords.some(k => text.includes(k));
+            const hasOffer = offerKeywords.some(k => text.includes(k));
+            
+            if (!hasFood || !hasOffer) return null;
+
+            // Extract restaurant name
+            const restaurant = extractRestaurantName(from, subject, body);
+            
+            // Check if birthday offer
+            const isBirthday = /birthday|b-day|bday/i.test(text);
+            
+            // Extract offer details
+            const offer = extractOfferDetails(subject, body);
+            
+            // Extract expiration date
+            const expiresDate = extractExpirationDate(body, date);
+            
+            // Extract location if available
+            const location = extractLocation(body);
+
+            return {
+                restaurant,
+                offer,
+                isBirthday,
+                expiresDate,
+                expiresText: formatExpiration(expiresDate),
+                location,
+                emailDate: date,
+                subject,
+                messageId: message.id
+            };
+        }
+
+        function extractRestaurantName(from, subject, body) {
+            // Try to extract from "From" field
+            const fromMatch = from.match(/^([^<@]+)/);
+            if (fromMatch) {
+                let name = fromMatch[1].trim();
+                // Clean up common email prefixes
+                name = name.replace(/^(info|no-reply|noreply|contact|support|team)\s*/i, '');
+                if (name.length > 3) return name;
+            }
+            
+            // Try to find brand names in subject or body
+            const brandPattern = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:Restaurant|Cafe|Coffee|Pizza|Burger)/;
+            const match = (subject + ' ' + body).match(brandPattern);
+            if (match) return match[1];
+            
+            return fromMatch ? fromMatch[1].trim() : 'Restaurant Offer';
+        }
+
+        function extractOfferDetails(subject, body) {
+            // Look for specific offers
+            const patterns = [
+                /(\d+%\s+off)/i,
+                /(buy\s+one\s+get\s+one|bogo)/i,
+                /(free\s+[a-z\s]+(?:with|when))/i,
+                /(\$\d+\s+off)/i,
+                /(free\s+delivery)/i,
+                /(complimentary\s+[a-z\s]+)/i
+            ];
+            
+            for (let pattern of patterns) {
+                const match = (subject + ' ' + body).match(pattern);
+                if (match) return match[1];
+            }
+            
+            // Fallback to subject line
+            return subject.substring(0, 60);
+        }
+
+        function extractExpirationDate(body, emailDate) {
+            // Look for expiration patterns
+            const patterns = [
+                /expires?\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
+                /valid\s+(?:until|through)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
+                /(?:until|through)\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i,
+                /expires?\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i
+            ];
+            
+            for (let pattern of patterns) {
+                const match = body.match(pattern);
+                if (match) {
+                    const dateStr = match[1];
+                    const parsed = new Date(dateStr);
+                    if (!isNaN(parsed.getTime())) {
+                        return parsed;
+                    }
+                }
+            }
+            
+            // Default: 30 days from email date
+            const defaultExpiry = new Date(emailDate);
+            defaultExpiry.setDate(defaultExpiry.getDate() + 30);
+            return defaultExpiry;
+        }
+
+        function extractLocation(body) {
+            // Simple location extraction (could be enhanced)
+            const locationPattern = /(?:location|address|visit us):\s*([^\n]+)/i;
+            const match = body.match(locationPattern);
+            return match ? match[1].trim().substring(0, 100) : 'See email for details';
+        }
+
+        function formatExpiration(date) {
+            const now = new Date();
+            const diff = date - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days < 0) return 'Expired';
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Tomorrow';
+            if (days < 7) return `${days} days`;
+            if (days < 30) return `${Math.floor(days / 7)} weeks`;
+            return date.toLocaleDateString();
+        }
+
+        function getExpiryClass(date) {
+            const now = new Date();
+            const diff = date - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days < 7) return 'soon';
+            if (days < 30) return 'medium';
+            return 'later';
+        }
+
+        function removeDuplicates(offers) {
+            const seen = new Set();
+            return offers.filter(offer => {
+                const key = `${offer.restaurant}-${offer.offer}`.toLowerCase();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function displayOffers(birthdayOffers, regularOffers) {
+            const birthdaySection = document.getElementById('birthdaySection');
+            const regularSection = document.getElementById('regularSection');
+            const birthdayContainer = document.getElementById('birthdayOffers');
+            const regularContainer = document.getElementById('regularOffers');
+            
+            document.getElementById('birthdayCount').textContent = birthdayOffers.length;
+            document.getElementById('regularCount').textContent = regularOffers.length;
+
+            if (birthdayOffers.length > 0) {
+                birthdaySection.style.display = 'block';
+                birthdayContainer.innerHTML = birthdayOffers.map(offer => createOfferCard(offer, true)).join('');
+            } else {
+                birthdaySection.style.display = 'none';
+            }
+
+            if (regularOffers.length > 0) {
+                regularSection.style.display = 'block';
+                regularContainer.innerHTML = regularOffers.map(offer => createOfferCard(offer, false)).join('');
+            } else {
+                regularSection.style.display = 'none';
+            }
+
+            // Add click handlers
+            document.querySelectorAll('.offer-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                });
+            });
+        }
+
+        function createOfferCard(offer, isBirthday) {
+            return `
+                <div class="offer-card ${isBirthday ? 'birthday' : ''}">
+                    <div class="offer-header">
+                        <div class="restaurant-name">${offer.restaurant}</div>
+                        <div class="expires-badge ${getExpiryClass(offer.expiresDate)}">
+                            ${offer.expiresText}
+                        </div>
+                    </div>
+                    <div class="offer-preview">${offer.offer}</div>
+                    <div class="offer-details">
+                        <div class="detail-row">
+                            <div class="detail-label">📍 Where:</div>
+                            <div class="detail-value">${offer.location}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">🎁 What:</div>
+                            <div class="detail-value">${offer.offer}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">⏰ When:</div>
+                            <div class="detail-value">Expires ${offer.expiresDate.toLocaleDateString()}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">📧 From:</div>
+                            <div class="detail-value">${offer.emailDate.toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+    
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
