@@ -756,6 +756,11 @@
                     <input type="checkbox" id="showUsedOffers" checked>
                     Show used/archived offers
                 </label>
+                <br>
+                <label style="margin-top: 10px; display: inline-flex;">
+                    <input type="checkbox" id="autoScanToggle" checked>
+                    Auto-scan on page load
+                </label>
             </div>
 
             <!-- List View (Original) -->
@@ -900,6 +905,7 @@
                 discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
             });
             gapiInited = true;
+            maybeEnableAutoScan();
         }
 
         function gisLoaded() {
@@ -909,6 +915,13 @@
                 callback: '',
             });
             gisInited = true;
+            maybeEnableAutoScan();
+        }
+
+        function maybeEnableAutoScan() {
+            if (gapiInited && gisInited) {
+                setTimeout(autoConnectAndScan, 500);
+            }
         }
 
         document.getElementById('connectBtn').addEventListener('click', handleAuthClick);
@@ -918,6 +931,47 @@
         let allOffersData = [];
         let currentCalendarDate = new Date();
         let showUsedOffers = true;
+        let autoScanEnabled = true;
+        let isScanning = false;
+
+        // OAuth token management
+        function saveAccessToken(accessToken) {
+            const expiryTime = Date.now() + (3600 * 1000); // 1 hour from now
+            localStorage.setItem('gmail_access_token', accessToken);
+            localStorage.setItem('gmail_token_expiry', expiryTime.toString());
+        }
+
+        function getAccessToken() {
+            const token = localStorage.getItem('gmail_access_token');
+            const expiry = localStorage.getItem('gmail_token_expiry');
+            
+            if (token && expiry && Date.now() < parseInt(expiry)) {
+                return token;
+            }
+            return null;
+        }
+
+        function clearAccessToken() {
+            localStorage.removeItem('gmail_access_token');
+            localStorage.removeItem('gmail_token_expiry');
+        }
+
+        // Auto-scan preference
+        function isAutoScanEnabled() {
+            const setting = localStorage.getItem('auto_scan_enabled');
+            return setting === null || setting === 'true'; // Default to true
+        }
+
+        function setAutoScanEnabled(enabled) {
+            localStorage.setItem('auto_scan_enabled', enabled ? 'true' : 'false');
+            autoScanEnabled = enabled;
+        }
+
+        // Initialize auto-scan setting
+        autoScanEnabled = isAutoScanEnabled();
+        if (document.getElementById('autoScanToggle')) {
+            document.getElementById('autoScanToggle').checked = autoScanEnabled;
+        }
 
         // Used offers tracking
         function getUsedOffers() {
@@ -998,6 +1052,16 @@
             }
         });
 
+        // Auto-scan toggle
+        document.getElementById('autoScanToggle').addEventListener('change', function() {
+            setAutoScanEnabled(this.checked);
+            if (this.checked) {
+                document.getElementById('status').textContent = 'Auto-scan enabled - will load automatically next time';
+            } else {
+                document.getElementById('status').textContent = 'Auto-scan disabled - click Connect Gmail to load offers';
+            }
+        });
+
         function handleAuthClick() {
             if (!gapiInited || !gisInited) {
                 alert('Please wait for Google APIs to load...');
@@ -1006,8 +1070,15 @@
 
             tokenClient.callback = async (resp) => {
                 if (resp.error !== undefined) {
+                    clearAccessToken();
                     throw (resp);
                 }
+                
+                // Save access token
+                if (resp.access_token) {
+                    saveAccessToken(resp.access_token);
+                }
+                
                 document.getElementById('status').textContent = 'Connected! Scanning emails...';
                 document.getElementById('connectBtn').disabled = true;
                 await scanEmails();
@@ -1020,7 +1091,42 @@
             }
         }
 
+        // Auto-connect and scan if we have valid credentials and tokens
+        async function autoConnectAndScan() {
+            if (!gapiInited || !gisInited) {
+                return;
+            }
+
+            const savedToken = getAccessToken();
+            if (savedToken && autoScanEnabled && !isScanning) {
+                try {
+                    // Set the token in gapi
+                    gapi.client.setToken({access_token: savedToken});
+                    
+                    document.getElementById('status').textContent = 'Auto-loading your offers...';
+                    document.getElementById('connectBtn').textContent = '✓ Connected';
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('connectBtn').style.opacity = '0.7';
+                    
+                    await scanEmails();
+                } catch (error) {
+                    console.error('Auto-scan failed:', error);
+                    clearAccessToken();
+                    document.getElementById('status').textContent = 'Click Connect Gmail to load offers';
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('connectBtn').textContent = 'Connect Gmail';
+                    document.getElementById('connectBtn').style.opacity = '1';
+                }
+            }
+        }
+
         async function scanEmails() {
+            if (isScanning) {
+                return; // Prevent duplicate scans
+            }
+            
+            isScanning = true;
+            
             try {
                 document.getElementById('status').textContent = 'Scanning your emails...';
                 
@@ -1095,8 +1201,20 @@
                 renderCalendar(currentCalendarDate);
                 
             } catch (err) {
-                document.getElementById('status').textContent = 'Error scanning emails. Please try again.';
                 console.error('Error:', err);
+                
+                // Check if it's an auth error
+                if (err.status === 401 || err.status === 403) {
+                    clearAccessToken();
+                    document.getElementById('status').textContent = 'Session expired. Click Connect Gmail to reload.';
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('connectBtn').textContent = 'Connect Gmail';
+                    document.getElementById('connectBtn').style.opacity = '1';
+                } else {
+                    document.getElementById('status').textContent = 'Error scanning emails. Please try again.';
+                }
+            } finally {
+                isScanning = false;
             }
         }
 
@@ -1419,9 +1537,10 @@
             
             // Look for "expires in X days/weeks/months" patterns
             const relativePatterns = [
-                /expires?\s+in\s+(\d+)\s+(day|days)/i,
-                /valid\s+for\s+(\d+)\s+(day|days)/i,
-                /good\s+for\s+(\d+)\s+(day|days)/i
+                /expires?\s+in\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
+                /valid\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
+                /good\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
+                /redeemable\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i
             ];
             
             for (let pattern of relativePatterns) {
@@ -1433,6 +1552,10 @@
                     const expiryDate = new Date(emailDate);
                     if (unit.includes('day')) {
                         expiryDate.setDate(expiryDate.getDate() + amount);
+                    } else if (unit.includes('week')) {
+                        expiryDate.setDate(expiryDate.getDate() + (amount * 7));
+                    } else if (unit.includes('month')) {
+                        expiryDate.setMonth(expiryDate.getMonth() + amount);
                     }
                     return expiryDate;
                 }
