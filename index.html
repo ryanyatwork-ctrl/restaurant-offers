@@ -674,6 +674,33 @@
             background: #868e96;
         }
 
+        .dismiss-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .dismiss-btn:active {
+            transform: scale(0.95);
+        }
+
+        .dismiss-btn.dismissed {
+            background: #868e96;
+        }
+
+        .offer-card.dismissed {
+            opacity: 0.5;
+            background: #f1f3f5;
+        }
+
         .archive-toggle {
             text-align: center;
             margin: 15px 0;
@@ -755,6 +782,11 @@
                 <label>
                     <input type="checkbox" id="showUsedOffers" checked>
                     Show used/archived offers
+                </label>
+                <br>
+                <label style="margin-top: 10px; display: inline-flex;">
+                    <input type="checkbox" id="showDismissedOffers">
+                    Show dismissed offers
                 </label>
                 <br>
                 <label style="margin-top: 10px; display: inline-flex;">
@@ -931,6 +963,7 @@
         let allOffersData = [];
         let currentCalendarDate = new Date();
         let showUsedOffers = true;
+        let showDismissedOffers = false;
         let autoScanEnabled = true;
         let isScanning = false;
 
@@ -997,6 +1030,29 @@
             return getUsedOffers().includes(offerId);
         }
 
+        function getDismissedOffers() {
+            const dismissed = localStorage.getItem('dismissed_offers');
+            return dismissed ? JSON.parse(dismissed) : [];
+        }
+
+        function dismissOffer(offerId) {
+            const dismissedOffers = getDismissedOffers();
+            if (!dismissedOffers.includes(offerId)) {
+                dismissedOffers.push(offerId);
+                localStorage.setItem('dismissed_offers', JSON.stringify(dismissedOffers));
+            }
+        }
+
+        function undismissOffer(offerId) {
+            let dismissedOffers = getDismissedOffers();
+            dismissedOffers = dismissedOffers.filter(id => id !== offerId);
+            localStorage.setItem('dismissed_offers', JSON.stringify(dismissedOffers));
+        }
+
+        function isOfferDismissed(offerId) {
+            return getDismissedOffers().includes(offerId);
+        }
+
         function generateOfferId(offer) {
             // Create unique ID from restaurant + offer + expiration
             return `${offer.restaurant}-${offer.offer}-${offer.expiresDate.toISOString()}`.replace(/[^a-zA-Z0-9-]/g, '');
@@ -1043,6 +1099,17 @@
         // Show/hide used offers toggle
         document.getElementById('showUsedOffers').addEventListener('change', function() {
             showUsedOffers = this.checked;
+            // Re-render current view
+            const birthdayOffers = allOffersData.filter(o => o.isBirthday);
+            const regularOffers = allOffersData.filter(o => !o.isBirthday);
+            displayOffers(birthdayOffers, regularOffers);
+            if (document.getElementById('calendarView').style.display !== 'none') {
+                renderCalendar(currentCalendarDate);
+            }
+        });
+
+        document.getElementById('showDismissedOffers').addEventListener('change', function() {
+            showDismissedOffers = this.checked;
             // Re-render current view
             const birthdayOffers = allOffersData.filter(o => o.isBirthday);
             const regularOffers = allOffersData.filter(o => !o.isBirthday);
@@ -1175,6 +1242,7 @@
                 allOffers.forEach(offer => {
                     offer.id = generateOfferId(offer);
                     offer.isUsed = isOfferUsed(offer.id);
+                    offer.isDismissed = isOfferDismissed(offer.id);
                 });
                 
                 // Store globally for CSV export
@@ -1666,6 +1734,11 @@
                 displayRegular = regularOffers.filter(o => !o.isUsed);
             }
             
+            if (!showDismissedOffers) {
+                displayBirthday = displayBirthday.filter(o => !o.isDismissed);
+                displayRegular = displayRegular.filter(o => !o.isDismissed);
+            }
+            
             document.getElementById('birthdayCount').textContent = displayBirthday.length;
             document.getElementById('regularCount').textContent = displayRegular.length;
 
@@ -1687,7 +1760,7 @@
             document.querySelectorAll('.offer-card').forEach(card => {
                 card.addEventListener('click', function(e) {
                     // Don't toggle if clicking the button
-                    if (!e.target.classList.contains('mark-used-btn')) {
+                    if (!e.target.classList.contains('mark-used-btn') && !e.target.classList.contains('dismiss-btn')) {
                         this.classList.toggle('expanded');
                     }
                 });
@@ -1728,16 +1801,78 @@
                     }
                 });
             });
+
+            // Add dismiss button handlers
+            document.querySelectorAll('.dismiss-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const offerId = this.dataset.offerId;
+                    const card = this.closest('.offer-card');
+                    
+                    if (this.classList.contains('dismissed')) {
+                        // Undismiss
+                        undismissOffer(offerId);
+                        this.textContent = '🗑️ Dismiss';
+                        this.classList.remove('dismissed');
+                        card.classList.remove('dismissed');
+                        
+                        // Update the offer in allOffersData
+                        const offer = allOffersData.find(o => o.id === offerId);
+                        if (offer) offer.isDismissed = false;
+                    } else {
+                        // Dismiss
+                        dismissOffer(offerId);
+                        this.textContent = '↩️ Undismiss';
+                        this.classList.add('dismissed');
+                        card.classList.add('dismissed');
+                        
+                        // Update the offer in allOffersData
+                        const offer = allOffersData.find(o => o.id === offerId);
+                        if (offer) offer.isDismissed = true;
+                    }
+                    
+                    // Refresh display if not showing dismissed
+                    if (!showDismissedOffers) {
+                        const birthdayOffers = allOffersData.filter(o => o.isBirthday);
+                        const regularOffers = allOffersData.filter(o => !o.isBirthday);
+                        displayOffers(birthdayOffers, regularOffers);
+                    }
+                    
+                    // Refresh calendar if visible
+                    if (document.getElementById('calendarView').style.display !== 'none') {
+                        renderCalendar(currentCalendarDate);
+                    }
+                });
+            });
         }
 
         function createOfferCard(offer, isBirthday) {
             const isUsed = offer.isUsed || false;
+            const isDismissed = offer.isDismissed || false;
             const usedClass = isUsed ? 'used' : '';
+            const dismissedClass = isDismissed ? 'dismissed' : '';
             const buttonText = isUsed ? '✓ Marked as Used' : '✓ Mark as Used';
             const buttonClass = isUsed ? 'marked' : '';
             
+            // Check if offer is expired
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expires = new Date(offer.expiresDate);
+            expires.setHours(0, 0, 0, 0);
+            const isExpired = expires < today;
+            
+            const dismissText = isDismissed ? '↩️ Undismiss' : '🗑️ Dismiss';
+            const dismissBtnClass = isDismissed ? 'dismissed' : '';
+            
+            // Only show dismiss button for expired offers
+            const dismissButton = isExpired ? `
+                <button class="dismiss-btn ${dismissBtnClass}" data-offer-id="${offer.id}">
+                    ${dismissText}
+                </button>
+            ` : '';
+            
             return `
-                <div class="offer-card ${isBirthday ? 'birthday' : ''} ${usedClass}">
+                <div class="offer-card ${isBirthday ? 'birthday' : ''} ${usedClass} ${dismissedClass}">
                     <div class="offer-header">
                         <div class="restaurant-name">${offer.restaurant}</div>
                         <div class="expires-badge ${getExpiryClass(offer.expiresDate)}">
@@ -1765,6 +1900,7 @@
                         <button class="mark-used-btn ${buttonClass}" data-offer-id="${offer.id}">
                             ${buttonText}
                         </button>
+                        ${dismissButton}
                     </div>
                 </div>
             `;
@@ -1901,6 +2037,11 @@
                 offersOnThisDay = offersOnThisDay.filter(o => !o.isUsed);
             }
             
+            // Filter dismissed offers if toggle is off
+            if (!showDismissedOffers) {
+                offersOnThisDay = offersOnThisDay.filter(o => !o.isDismissed);
+            }
+            
             if (offersOnThisDay.length > 0) {
                 // Show up to 3 offers
                 const displayOffers = offersOnThisDay.slice(0, 3);
@@ -1948,7 +2089,7 @@
             modalOffers.querySelectorAll('.offer-card').forEach(card => {
                 card.addEventListener('click', function(e) {
                     // Don't toggle if clicking the button
-                    if (!e.target.classList.contains('mark-used-btn')) {
+                    if (!e.target.classList.contains('mark-used-btn') && !e.target.classList.contains('dismiss-btn')) {
                         this.classList.toggle('expanded');
                     }
                 });
@@ -1988,6 +2129,47 @@
                     
                     // Refresh list view if visible
                     if (document.getElementById('listView').style.display !== 'none') {
+                        const birthdayOffers = allOffersData.filter(o => o.isBirthday);
+                        const regularOffers = allOffersData.filter(o => !o.isBirthday);
+                        displayOffers(birthdayOffers, regularOffers);
+                    }
+                });
+            });
+            
+            // Add dismiss button handlers
+            modalOffers.querySelectorAll('.dismiss-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const offerId = this.dataset.offerId;
+                    const card = this.closest('.offer-card');
+                    
+                    if (this.classList.contains('dismissed')) {
+                        // Undismiss
+                        undismissOffer(offerId);
+                        this.textContent = '🗑️ Dismiss';
+                        this.classList.remove('dismissed');
+                        card.classList.remove('dismissed');
+                        
+                        // Update the offer in allOffersData
+                        const offer = allOffersData.find(o => o.id === offerId);
+                        if (offer) offer.isDismissed = false;
+                    } else {
+                        // Dismiss
+                        dismissOffer(offerId);
+                        this.textContent = '↩️ Undismiss';
+                        this.classList.add('dismissed');
+                        card.classList.add('dismissed');
+                        
+                        // Update the offer in allOffersData
+                        const offer = allOffersData.find(o => o.id === offerId);
+                        if (offer) offer.isDismissed = true;
+                    }
+                    
+                    // Refresh calendar
+                    renderCalendar(currentCalendarDate);
+                    
+                    // Refresh list view if visible and not showing dismissed
+                    if (!showDismissedOffers && document.getElementById('listView').style.display !== 'none') {
                         const birthdayOffers = allOffersData.filter(o => o.isBirthday);
                         const regularOffers = allOffersData.filter(o => !o.isBirthday);
                         displayOffers(birthdayOffers, regularOffers);
