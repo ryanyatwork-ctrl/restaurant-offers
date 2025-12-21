@@ -790,6 +790,11 @@
                 </label>
                 <br>
                 <label style="margin-top: 10px; display: inline-flex;">
+                    <input type="checkbox" id="hideBirthdayOffers">
+                    Hide birthday offers
+                </label>
+                <br>
+                <label style="margin-top: 10px; display: inline-flex;">
                     <input type="checkbox" id="autoScanToggle" checked>
                     Auto-scan on page load
                 </label>
@@ -964,6 +969,7 @@
         let currentCalendarDate = new Date();
         let showUsedOffers = true;
         let showDismissedOffers = false;
+        let hideBirthdayOffers = false;
         let autoScanEnabled = true;
         let isScanning = false;
 
@@ -1110,6 +1116,17 @@
 
         document.getElementById('showDismissedOffers').addEventListener('change', function() {
             showDismissedOffers = this.checked;
+            // Re-render current view
+            const birthdayOffers = allOffersData.filter(o => o.isBirthday);
+            const regularOffers = allOffersData.filter(o => !o.isBirthday);
+            displayOffers(birthdayOffers, regularOffers);
+            if (document.getElementById('calendarView').style.display !== 'none') {
+                renderCalendar(currentCalendarDate);
+            }
+        });
+
+        document.getElementById('hideBirthdayOffers').addEventListener('change', function() {
+            hideBirthdayOffers = this.checked;
             // Re-render current view
             const birthdayOffers = allOffersData.filter(o => o.isBirthday);
             const regularOffers = allOffersData.filter(o => !o.isBirthday);
@@ -1790,18 +1807,31 @@
             const birthdayContainer = document.getElementById('birthdayOffers');
             const regularContainer = document.getElementById('regularOffers');
             
-            // Filter based on showUsedOffers setting
+            // Filter based on settings
             let displayBirthday = birthdayOffers;
             let displayRegular = regularOffers;
             
+            // Filter out expired offers (always)
+            const now = new Date();
+            now.setHours(0, 0, 0, 0); // Reset to start of day for comparison
+            displayBirthday = displayBirthday.filter(o => o.expiresDate >= now);
+            displayRegular = displayRegular.filter(o => o.expiresDate >= now);
+            
+            // Filter based on showUsedOffers setting
             if (!showUsedOffers) {
-                displayBirthday = birthdayOffers.filter(o => !o.isUsed);
-                displayRegular = regularOffers.filter(o => !o.isUsed);
+                displayBirthday = displayBirthday.filter(o => !o.isUsed);
+                displayRegular = displayRegular.filter(o => !o.isUsed);
             }
             
+            // Filter based on showDismissedOffers setting
             if (!showDismissedOffers) {
                 displayBirthday = displayBirthday.filter(o => !o.isDismissed);
                 displayRegular = displayRegular.filter(o => !o.isDismissed);
+            }
+            
+            // Filter out birthday offers if hideBirthdayOffers is checked
+            if (hideBirthdayOffers) {
+                displayBirthday = [];
             }
             
             document.getElementById('birthdayCount').textContent = displayBirthday.length;
@@ -1929,12 +1959,12 @@
             const dismissText = isDismissed ? '↩️ Undismiss' : '🗑️ Dismiss';
             const dismissBtnClass = isDismissed ? 'dismissed' : '';
             
-            // Only show dismiss button for expired offers
-            const dismissButton = isExpired ? `
+            // Show dismiss button for all offers
+            const dismissButton = `
                 <button class="dismiss-btn ${dismissBtnClass}" data-offer-id="${offer.id}">
                     ${dismissText}
                 </button>
-            ` : '';
+            `;
             
             return `
                 <div class="offer-card ${isBirthday ? 'birthday' : ''} ${usedClass} ${dismissedClass}">
@@ -2093,9 +2123,14 @@
             
             // Find offers expiring on this date
             const dateStr = date.toDateString();
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
             let offersOnThisDay = allOffersData.filter(offer => {
                 return offer.expiresDate.toDateString() === dateStr;
             });
+            
+            // Filter out expired offers (always)
+            offersOnThisDay = offersOnThisDay.filter(o => o.expiresDate >= now);
             
             // Filter used offers if toggle is off
             if (!showUsedOffers) {
@@ -2105,6 +2140,11 @@
             // Filter dismissed offers if toggle is off
             if (!showDismissedOffers) {
                 offersOnThisDay = offersOnThisDay.filter(o => !o.isDismissed);
+            }
+            
+            // Filter birthday offers if hideBirthdayOffers is checked
+            if (hideBirthdayOffers) {
+                offersOnThisDay = offersOnThisDay.filter(o => !o.isBirthday);
             }
             
             if (offersOnThisDay.length > 0) {
