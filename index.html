@@ -1219,7 +1219,14 @@
                     'subject:(offer OR deal OR coupon OR discount OR free) (restaurant OR food OR dining OR pizza OR burger OR cafe OR coffee)',
                     'birthday (restaurant OR dining OR food OR free)',
                     'from:(doordash OR ubereats OR grubhub OR restaurant OR dine)',
-                    'reward points (restaurant OR food OR dining)'
+                    'reward points (restaurant OR food OR dining)',
+                    // Common restaurant chains
+                    'from:(burgerking OR mcdonald OR wendys OR subway OR chickfila OR tacobell OR kfc OR pizzahut OR dominos OR papajohns)',
+                    'from:(chipotle OR pandaexpress OR olivegarden OR redlobster OR buffalowildwings OR outback OR applebees OR chilis)',
+                    // Reward/loyalty programs
+                    'subject:(rewards OR loyalty OR points) (food OR restaurant OR dining)',
+                    // Broader food terms
+                    'subject:(special OR promo) (restaurant OR cafe OR kitchen OR grill OR diner OR eatery OR bistro)'
                 ];
 
                 let allOffers = [];
@@ -1228,7 +1235,7 @@
                     const response = await gapi.client.gmail.users.messages.list({
                         userId: 'me',
                         q: query,
-                        maxResults: 50
+                        maxResults: 100
                     });
 
                     if (response.result.messages) {
@@ -1393,23 +1400,33 @@
                 body = cleanHtmlText(body);
 
                 // Check if it's food-related
-                const foodKeywords = ['restaurant', 'food', 'pizza', 'burger', 'coffee', 'dining', 'meal', 'cafe', 'eat', 'sushi', 'taco', 'sandwich', 'delivery', 'kitchen', 'grill', 'bistro', 'diner'];
-                const offerKeywords = ['offer', 'deal', 'coupon', 'discount', 'free', 'off', '%', 'save', 'reward', 'promo', 'special', 'birthday'];
+                const foodKeywords = ['restaurant', 'food', 'pizza', 'burger', 'coffee', 'dining', 'meal', 'cafe', 'eat', 'sushi', 'taco', 'sandwich', 'delivery', 'kitchen', 'grill', 'bistro', 'diner', 'wings', 'bbq', 'chicken', 'steak'];
+                const offerKeywords = ['offer', 'deal', 'coupon', 'discount', 'free', 'off', '%', 'save', 'reward', 'promo', 'special', 'birthday', 'bonus', 'points', 'loyalty'];
+                
+                // Known restaurant chains/services that should always be included
+                const knownRestaurants = ['burger king', 'mcdonald', 'wendy', 'subway', 'chick-fil-a', 'taco bell', 'kfc', 'pizza hut', 'domino', 'papa john', 'chipotle', 'panda express', 'olive garden', 'red lobster', 'buffalo wild', 'outback', 'applebee', 'chili', 'doordash', 'ubereats', 'grubhub', 'firehouse', 'jimmy john', 'panera', 'starbucks', 'dunkin'];
                 
                 const text = (subject + ' ' + body + ' ' + from).toLowerCase();
                 
                 const hasFood = foodKeywords.some(k => text.includes(k));
                 const hasOffer = offerKeywords.some(k => text.includes(k));
+                const isKnownRestaurant = knownRestaurants.some(k => text.includes(k));
                 
-                if (!hasFood || !hasOffer) return null;
+                // Accept if: (has food AND has offer) OR is from a known restaurant
+                if (!(hasFood && hasOffer) && !isKnownRestaurant) return null;
 
                 // Extract restaurant name
                 const restaurant = extractRestaurantName(from, subject, body);
                 
-                // Validate restaurant name
-                if (!restaurant || restaurant.length < 2) {
-                    console.warn('Could not extract restaurant name from:', from);
-                    return null;
+                // Use a more lenient validation - accept names with at least 1 character
+                if (!restaurant || restaurant.length < 1 || restaurant === 'Restaurant Offer') {
+                    console.warn('Using generic restaurant name for email from:', from);
+                    // Try to extract something from the from field as last resort
+                    const fromMatch = from.match(/^([^<@]+)/);
+                    if (!fromMatch) {
+                        console.warn('Could not extract any restaurant info, skipping');
+                        return null;
+                    }
                 }
                 
                 // Check if birthday offer
@@ -1421,10 +1438,12 @@
                 // Extract expiration date
                 const expiresDate = extractExpirationDate(body, date);
                 
-                // Validate expiration date
+                // Validate expiration date - if somehow invalid, use 90 days from email as default
+                let finalExpiryDate = expiresDate;
                 if (!expiresDate || isNaN(expiresDate.getTime())) {
-                    console.warn('Invalid expiration date for:', restaurant);
-                    return null;
+                    finalExpiryDate = new Date(date);
+                    finalExpiryDate.setDate(finalExpiryDate.getDate() + 90);
+                    console.warn('Using default 90-day expiry for:', restaurant);
                 }
                 
                 // Extract location if available
@@ -1434,8 +1453,8 @@
                     restaurant,
                     offer,
                     isBirthday,
-                    expiresDate,
-                    expiresText: formatExpiration(expiresDate),
+                    expiresDate: finalExpiryDate,
+                    expiresText: formatExpiration(finalExpiryDate),
                     location,
                     emailDate: date,
                     subject,
