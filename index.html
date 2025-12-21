@@ -835,6 +835,7 @@
 
             <button id="refreshBtn" class="refresh-btn" style="display: none;">🔄 Refresh Offers</button>
             <button id="exportBtn" class="refresh-btn" style="display: none; background: #51cf66; margin-top: 10px;">📥 Export to CSV</button>
+            <button id="trashBtn" class="refresh-btn" style="display: none; background: #ff6b6b; margin-top: 10px;">🗑️ Trash Old Offers</button>
         </div>
 
         <!-- Offers Modal for Calendar -->
@@ -850,7 +851,7 @@
     </div>
 
     <script>
-        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify';
 
         let tokenClient;
         let gapiInited = false;
@@ -964,6 +965,7 @@
         document.getElementById('connectBtn').addEventListener('click', handleAuthClick);
         document.getElementById('refreshBtn').addEventListener('click', scanEmails);
         document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        document.getElementById('trashBtn').addEventListener('click', trashOldOffers);
 
         let allOffersData = [];
         let currentCalendarDate = new Date();
@@ -1285,6 +1287,7 @@
                 document.getElementById('status').textContent = `Found ${allOffers.length} offers!`;
                 document.getElementById('refreshBtn').style.display = 'block';
                 document.getElementById('exportBtn').style.display = 'block';
+                document.getElementById('trashBtn').style.display = 'block';
                 document.getElementById('viewToggle').style.display = 'flex';
                 document.getElementById('archiveToggle').style.display = 'block';
                 
@@ -2069,6 +2072,70 @@
                 return '"' + text.replace(/"/g, '""') + '"';
             }
             return text;
+        }
+
+        async function trashOldOffers() {
+            if (!allOffersData || allOffersData.length === 0) {
+                alert('No offers found. Please scan your emails first.');
+                return;
+            }
+
+            // Find offers that are expired by 60+ days
+            const now = new Date();
+            const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
+            
+            const oldExpiredOffers = allOffersData.filter(offer => {
+                return offer.expiresDate < sixtyDaysAgo;
+            });
+
+            if (oldExpiredOffers.length === 0) {
+                alert('No old expired offers found! All your offers are either current or recently expired (less than 60 days old).');
+                return;
+            }
+
+            // Show confirmation dialog with details
+            const confirmMessage = `Found ${oldExpiredOffers.length} offer email${oldExpiredOffers.length > 1 ? 's' : ''} expired by 60+ days.\n\n` +
+                `These emails will be moved to Gmail Trash (you can recover them within 30 days).\n\n` +
+                `Continue?`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Show progress
+            document.getElementById('status').textContent = `Moving ${oldExpiredOffers.length} emails to trash...`;
+            document.getElementById('trashBtn').disabled = true;
+
+            let trashedCount = 0;
+            let failedCount = 0;
+
+            for (let offer of oldExpiredOffers) {
+                try {
+                    await gapi.client.gmail.users.messages.trash({
+                        userId: 'me',
+                        id: offer.messageId
+                    });
+                    trashedCount++;
+                } catch (error) {
+                    console.error('Failed to trash email:', offer.messageId, error);
+                    failedCount++;
+                }
+            }
+
+            // Re-enable button
+            document.getElementById('trashBtn').disabled = false;
+
+            // Show results
+            if (failedCount > 0) {
+                alert(`Moved ${trashedCount} email${trashedCount > 1 ? 's' : ''} to trash.\n${failedCount} failed - check console for details.`);
+                document.getElementById('status').textContent = `Moved ${trashedCount} to trash, ${failedCount} failed`;
+            } else {
+                alert(`Successfully moved ${trashedCount} old expired offer email${trashedCount > 1 ? 's' : ''} to trash!`);
+                document.getElementById('status').textContent = `Moved ${trashedCount} emails to trash`;
+            }
+
+            // Refresh offers to remove trashed ones
+            await scanEmails();
         }
 
         function renderCalendar(date) {
