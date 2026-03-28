@@ -1179,31 +1179,58 @@
 
         // Auto-connect and scan if we have valid credentials and tokens
         async function autoConnectAndScan() {
-            if (!gapiInited || !gisInited) {
-                return;
-            }
+            if (!gapiInited || !gisInited) return;
+            if (!autoScanEnabled || isScanning) return;
 
             const savedToken = getAccessToken();
-            if (savedToken && autoScanEnabled && !isScanning) {
+
+            if (savedToken) {
+                // Valid cached token — use it directly
+                gapi.client.setToken({access_token: savedToken});
+                document.getElementById('status').textContent = 'Auto-loading your offers...';
+                document.getElementById('connectBtn').textContent = '✓ Connected';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectBtn').style.opacity = '0.7';
                 try {
-                    // Set the token in gapi
-                    gapi.client.setToken({access_token: savedToken});
-                    
-                    document.getElementById('status').textContent = 'Auto-loading your offers...';
-                    document.getElementById('connectBtn').textContent = '✓ Connected';
-                    document.getElementById('connectBtn').disabled = true;
-                    document.getElementById('connectBtn').style.opacity = '0.7';
-                    
                     await scanEmails();
                 } catch (error) {
-                    console.error('Auto-scan failed:', error);
+                    console.error('Auto-scan failed, trying silent refresh:', error);
                     clearAccessToken();
-                    document.getElementById('status').textContent = 'Click Connect Gmail to load offers';
+                    attemptSilentAuth();
+                }
+            } else {
+                // Token expired — silently request a new one without showing consent popup
+                attemptSilentAuth();
+            }
+        }
+
+        // Silently refresh the OAuth token in the background.
+        // Since the user already granted permission, Google won't show a popup.
+        // Only falls back to showing the Connect button if something goes wrong.
+        function attemptSilentAuth() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    // Silent auth failed — show the Connect button as fallback
+                    document.getElementById('connectBtn').style.display = '';
                     document.getElementById('connectBtn').disabled = false;
                     document.getElementById('connectBtn').textContent = 'Connect Gmail';
                     document.getElementById('connectBtn').style.opacity = '1';
+                    document.getElementById('status').textContent = 'Click Connect Gmail to load your offers';
+                    return;
                 }
-            }
+                if (resp.access_token) {
+                    saveAccessToken(resp.access_token);
+                    gapi.client.setToken({access_token: resp.access_token});
+                }
+                document.getElementById('status').textContent = 'Auto-loading your offers...';
+                document.getElementById('connectBtn').textContent = '✓ Connected';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectBtn').style.opacity = '0.7';
+                await scanEmails();
+            };
+
+            // prompt: '' means "don't show the consent screen if already granted"
+            tokenClient.requestAccessToken({prompt: ''});
         }
 
         async function scanEmails() {
