@@ -5,2439 +5,1961 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
     <title>Food Offers Tracker</title>
-
-    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Food Offers">
     <link rel="apple-touch-icon" href="icon_192x192.png">
     <link rel="icon" type="image/png" href="icon_512x512.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0f0f1a;
+            --bg2: #1a1a2e;
+            --bg3: #16213e;
+            --accent: #7c6ef7;
+            --accent2: #a78bfa;
+            --accent-glow: rgba(124, 110, 247, 0.25);
+            --text: #f0f0ff;
+            --text2: #a0a0c0;
+            --text3: #606080;
+            --card: #1e1e35;
+            --card-border: #2a2a45;
+            --urgent: #ff4757;
+            --urgent-bg: rgba(255,71,87,0.12);
+            --warn: #ffa502;
+            --warn-bg: rgba(255,165,2,0.12);
+            --safe: #2ed573;
+            --safe-bg: rgba(46,213,115,0.12);
+            --birthday: #ff6b9d;
+            --birthday-bg: rgba(255,107,157,0.12);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px 10px;
+            padding-bottom: 30px;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+        /* ── HEADER ── */
+        .app-header {
+            background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
         }
 
-        .calendar-view .calendar-container {
-            max-width: 100%;
-        }
-
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .setup-screen {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .setup-screen h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 22px;
-        }
-
-        .setup-screen p {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #333;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: monospace;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group small {
-            display: block;
-            color: #999;
-            margin-top: 5px;
-            font-size: 12px;
-        }
-
-        .help-link {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .help-link:hover {
-            text-decoration: underline;
-        }
-
-        .btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            margin-top: 10px;
-        }
-
-        .connect-btn {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-        }
-
-        .connect-btn:active {
-            transform: scale(0.95);
-        }
-
-        .connect-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .status {
-            color: white;
-            text-align: center;
-            margin: 15px 0;
-            font-size: 14px;
-        }
-
-        .section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .section-header {
+        .header-top {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .section-icon {
-            font-size: 24px;
-            margin-right: 10px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .offer-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 4px solid #667eea;
-        }
-
-        .offer-card:active {
-            transform: scale(0.98);
-            background: #e9ecef;
-        }
-
-        .offer-card.birthday {
-            border-left-color: #ff6b6b;
-            background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
-        }
-
-        .offer-header {
-            display: flex;
             justify-content: space-between;
-            align-items: start;
-            margin-bottom: 8px;
+            margin-bottom: 14px;
         }
 
-        .restaurant-name {
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            flex: 1;
-        }
-
-        .expires-badge {
-            background: #ff6b6b;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-            margin-left: 10px;
-        }
-
-        .expires-badge.soon {
-            background: #ff6b6b;
-        }
-
-        .expires-badge.medium {
-            background: #ffa500;
-        }
-
-        .expires-badge.later {
-            background: #51cf66;
-        }
-
-        .offer-preview {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .offer-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            margin-top: 0;
-        }
-
-        .offer-card.expanded .offer-details {
-            max-height: 500px;
-            margin-top: 15px;
-        }
-
-        .detail-row {
+        .header-title {
             display: flex;
-            padding: 10px 0;
-            border-top: 1px solid #dee2e6;
+            align-items: center;
+            gap: 10px;
         }
 
-        .detail-label {
-            font-weight: bold;
-            color: #495057;
-            width: 80px;
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent2), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .stat-pill.urgent { background: var(--urgent-bg); border-color: var(--urgent); color: var(--urgent); }
+        .stat-pill.birthday { background: var(--birthday-bg); border-color: var(--birthday); color: var(--birthday); }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover { border-color: var(--accent); color: var(--accent2); }
+        .icon-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); }
+
+        /* ── SEARCH + FILTER BAR ── */
+        .search-bar {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            padding: 10px 14px 10px 38px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus { border-color: var(--accent); }
+        .search-bar input::placeholder { color: var(--text3); }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text3);
+            font-size: 15px;
+        }
+
+        .search-bar .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+
+        .filter-row::-webkit-scrollbar { display: none; }
+
+        .filter-pill {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
             flex-shrink: 0;
         }
 
-        .detail-value {
-            color: #333;
-            flex: 1;
+        .filter-pill.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent2);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
+        .filter-pill.urgent-pill.active { background: var(--urgent-bg); border-color: var(--urgent); color: var(--urgent); }
+        .filter-pill.birthday-pill.active { background: var(--birthday-bg); border-color: var(--birthday); color: var(--birthday); }
 
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .refresh-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
-        }
-
-        .refresh-btn:active {
-            transform: scale(0.95);
-        }
-
-        .count-badge {
-            background: #667eea;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        .settings-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .settings-btn:active {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .info-box p {
-            color: #1565c0;
-            margin: 0;
-            font-size: 13px;
-        }
-
-        #appContent {
-            display: none;
-        }
-
-        .hidden {
-            display: none;
+        /* ── VIEW TOGGLE ── */
+        .view-sort-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px 0;
         }
 
         .view-toggle {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
         }
 
-        .view-toggle-btn {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
+        .view-btn {
+            background: none;
+            border: none;
+            color: var(--text2);
+            padding: 7px 14px;
+            font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .view-toggle-btn.active {
-            background: #667eea;
-            color: white;
+        .view-btn.active {
+            background: var(--accent-glow);
+            color: var(--accent2);
         }
 
-        .view-toggle-btn:active {
-            transform: scale(0.95);
+        .sort-select {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
         }
 
-        .calendar-container {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow-x: auto;
+        /* ── MAIN CONTENT ── */
+        .container { max-width: 600px; margin: 0 auto; padding: 0; }
+
+        .content-area { padding: 12px 16px; }
+
+        /* ── SETUP SCREEN ── */
+        .setup-screen {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 20px 16px;
+            box-shadow: var(--shadow);
         }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+        .setup-screen h2 { font-size: 20px; margin-bottom: 8px; }
+        .setup-screen p { color: var(--text2); margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
+
+        .info-box {
+            background: rgba(124,110,247,0.1);
+            border-left: 3px solid var(--accent);
+            padding: 12px 14px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin-bottom: 20px;
         }
 
-        .calendar-nav-btn {
-            background: #667eea;
+        .info-box p { color: var(--accent2); margin: 0; font-size: 13px; }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            padding: 11px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: monospace;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus { border-color: var(--accent); }
+        .form-group small { display: block; color: var(--text3); margin-top: 4px; font-size: 11px; }
+
+        .btn-primary {
+            background: var(--accent);
             color: white;
             border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            font-size: 18px;
+            padding: 13px 24px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── CONNECT BUTTON ── */
+        .connect-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px 0;
+        }
+
+        .connect-btn {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            padding: 9px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .connect-btn.connected {
+            background: rgba(46,213,115,0.1);
+            border-color: var(--safe);
+            color: var(--safe);
+        }
+
+        .status-text { font-size: 13px; color: var(--text3); }
+
+        /* ── SECTION HEADERS ── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text3);
+            padding: 16px 0 8px;
+        }
+
+        /* ── OFFER CARDS ── */
+        .offer-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: transform 0.15s, border-color 0.2s;
+            position: relative;
+            touch-action: pan-y;
+        }
+
+        .offer-card:active { transform: scale(0.99); }
+        .offer-card.used { opacity: 0.55; }
+        .offer-card.dismissed { opacity: 0.4; }
+
+        .offer-card.urgent-card { border-left: 3px solid var(--urgent); }
+        .offer-card.warn-card { border-left: 3px solid var(--warn); }
+        .offer-card.safe-card { border-left: 3px solid var(--safe); }
+        .offer-card.birthday-card { border-left: 3px solid var(--birthday); background: var(--birthday-bg); }
+
+        /* swipe dismiss indicator */
+        .swipe-hint {
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 70px;
+            background: linear-gradient(to left, var(--urgent), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .offer-card.swiping .swipe-hint { opacity: 1; }
+
+        .offer-main {
+            padding: 14px 14px 12px;
+            cursor: pointer;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .offer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
             flex-shrink: 0;
+            color: white;
         }
 
-        .calendar-nav-btn:active {
-            transform: scale(0.9);
+        .offer-body { flex: 1; min-width: 0; }
+
+        .offer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 4px;
         }
 
-        .calendar-month-year {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
+        .restaurant-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .calendar-grid {
+        .expiry-badge {
+            flex-shrink: 0;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .expiry-badge.soon { background: var(--urgent-bg); color: var(--urgent); border: 1px solid var(--urgent); }
+        .expiry-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn); }
+        .expiry-badge.later { background: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
+        .expiry-badge.expired { background: rgba(100,100,100,0.2); color: var(--text3); border: 1px solid var(--text3); }
+
+        .offer-desc {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .offer-tags {
+            display: flex;
+            gap: 5px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .offer-tag {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .tag-birthday { background: var(--birthday-bg); color: var(--birthday); }
+        .tag-used { background: rgba(100,100,100,0.15); color: var(--text3); }
+        .tag-dismissed { background: rgba(100,100,100,0.15); color: var(--text3); }
+
+        /* ── EXPANDED DETAILS ── */
+        .offer-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            border-top: 0px solid var(--card-border);
+        }
+
+        .offer-card.expanded .offer-details {
+            max-height: 400px;
+            border-top-width: 1px;
+        }
+
+        .detail-inner { padding: 14px; }
+
+        .detail-row {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            align-items: flex-start;
+        }
+
+        .detail-row:last-of-type { border-bottom: none; }
+
+        .detail-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text3);
+            width: 60px;
+            flex-shrink: 0;
+            padding-top: 1px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            color: var(--text2);
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .detail-value a { color: var(--accent2); text-decoration: none; }
+        .detail-value a:hover { text-decoration: underline; }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s;
+        }
+
+        .btn-used {
+            background: rgba(46,213,115,0.1);
+            border-color: var(--safe);
+            color: var(--safe);
+        }
+
+        .btn-used.marked {
+            background: var(--safe);
+            color: #000;
+        }
+
+        .btn-dismiss {
+            background: var(--urgent-bg);
+            border-color: var(--urgent);
+            color: var(--urgent);
+        }
+
+        .btn-dismiss.dismissed {
+            background: rgba(100,100,100,0.1);
+            border-color: var(--text3);
+            color: var(--text3);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.6; }
+        .empty-title { font-size: 18px; font-weight: 700; color: var(--text2); margin-bottom: 8px; }
+        .empty-sub { font-size: 14px; color: var(--text3); line-height: 1.5; }
+
+        /* ── BOTTOM ACTIONS ── */
+        .bottom-actions {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .action-chip {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-chip:hover { border-color: var(--accent); color: var(--accent2); }
+        .action-chip.danger:hover { border-color: var(--urgent); color: var(--urgent); }
+
+        /* ── CALENDAR ── */
+        .calendar-wrap {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .cal-month { font-size: 16px; font-weight: 700; }
+
+        .cal-nav {
+            background: none;
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .cal-nav:hover { border-color: var(--accent); color: var(--accent2); }
+
+        .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            width: 100%;
+            gap: 1px;
+            background: var(--card-border);
         }
 
-        .calendar-day-header {
+        .cal-day-header {
+            background: var(--card);
             text-align: center;
-            font-weight: bold;
-            color: #667eea;
             padding: 8px 2px;
-            font-size: 11px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .calendar-day {
-            min-height: 70px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+        .cal-day {
+            background: var(--card);
+            min-height: 72px;
             padding: 4px;
-            background: #fafafa;
             position: relative;
             overflow: hidden;
         }
 
-        .calendar-day.other-month {
-            opacity: 0.3;
+        .cal-day.other-month { opacity: 0.25; }
+
+        .cal-day.today {
+            background: rgba(124,110,247,0.08);
         }
 
-        .calendar-day.today {
-            background: #e3f2fd;
-            border-color: #667eea;
-        }
-
-        .calendar-day-number {
-            font-size: 12px;
-            font-weight: bold;
-            color: #333;
+        .cal-day-num {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text3);
             margin-bottom: 3px;
         }
 
-        .calendar-offer-dot {
+        .cal-day.today .cal-day-num {
+            color: var(--accent2);
+        }
+
+        .cal-dot {
             width: 100%;
-            background: #667eea;
-            color: white;
+            border-radius: 4px;
+            padding: 2px 3px;
             font-size: 8px;
-            padding: 2px;
-            border-radius: 3px;
+            font-weight: 600;
             margin-bottom: 2px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             cursor: pointer;
-            line-height: 1.2;
         }
 
-        .calendar-offer-dot.birthday {
-            background: #ff6b6b;
+        .cal-dot.soon { background: var(--urgent-bg); color: var(--urgent); }
+        .cal-dot.medium { background: var(--warn-bg); color: var(--warn); }
+        .cal-dot.later { background: var(--safe-bg); color: var(--safe); }
+        .cal-dot.birthday { background: var(--birthday-bg); color: var(--birthday); }
+        .cal-dot.used { opacity: 0.4; }
+
+        .cal-more {
+            font-size: 9px;
+            color: var(--text3);
+            text-align: center;
+            padding: 1px;
         }
 
-        .calendar-offer-dot:active {
-            opacity: 0.8;
-        }
-
-        .calendar-offer-count {
-            position: absolute;
-            bottom: 3px;
-            right: 3px;
-            background: #667eea;
-            color: white;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .list-view {
-            display: block;
-        }
-
-        .calendar-view {
-            display: none;
-        }
-
-        .offers-modal {
+        /* ── MODAL ── */
+        .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
             display: none;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             z-index: 1000;
             padding: 20px;
         }
 
-        .offers-modal.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
-        .offers-modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            max-width: 500px;
+        .modal-sheet {
+            background: var(--bg2);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius) var(--radius) 0 0;
+            width: 100%;
+            max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
-            width: 100%;
+            padding: 20px;
         }
 
-        .offers-modal-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 16px;
         }
 
-        .offers-modal-close {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
+        .modal-title { font-size: 16px; font-weight: 700; }
+
+        .modal-close {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text2);
+            width: 30px; height: 30px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── SETTINGS PANEL ── */
+        .settings-panel {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .settings-panel.active { display: flex; }
+
+        .settings-sheet {
+            background: var(--bg2);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius) var(--radius) 0 0;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .toggle-label { font-size: 14px; color: var(--text2); }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--card-border);
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch input:checked + .toggle-track { background: var(--accent); }
+
+        .toggle-thumb {
+            position: absolute;
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+        /* ── NOTIFICATION BANNER ── */
+        .notif-banner {
+            background: rgba(124,110,247,0.15);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--accent2);
         }
 
-        @media (max-width: 600px) {
-            .calendar-container {
-                padding: 10px;
-            }
-
-            .calendar-month-year {
-                font-size: 16px;
-            }
-
-            .calendar-nav-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 16px;
-            }
-
-            .calendar-grid {
-                gap: 2px;
-            }
-
-            .calendar-day {
-                min-height: 55px;
-                padding: 3px 2px;
-            }
-
-            .calendar-day-header {
-                font-size: 10px;
-                padding: 5px 1px;
-            }
-
-            .calendar-offer-dot {
-                font-size: 7px;
-                padding: 1px 2px;
-                margin-bottom: 1px;
-            }
-
-            .calendar-day-number {
-                font-size: 10px;
-                margin-bottom: 2px;
-            }
-
-            .calendar-offer-count {
-                font-size: 8px;
-                padding: 1px 4px;
-                bottom: 2px;
-                right: 2px;
-            }
-        }
-        .offer-card.used {
-            opacity: 0.5;
-            position: relative;
-        }
-
-        .offer-card.used::after {
-            content: '✓ USED';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #51cf66;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .calendar-offer-dot.used {
-            opacity: 0.4;
-            text-decoration: line-through;
-        }
-
-        .calendar-offer-dot.used::before {
-            content: '✓ ';
-        }
-
-        .mark-used-btn {
-            background: #51cf66;
-            color: white;
+        .notif-banner button {
+            margin-left: auto;
+            background: var(--accent);
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .mark-used-btn:active {
-            transform: scale(0.95);
-        }
-
-        .mark-used-btn.marked {
-            background: #868e96;
-        }
-
-        .dismiss-btn {
-            background: #dc3545;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .dismiss-btn:active {
-            transform: scale(0.95);
-        }
-
-        .dismiss-btn.dismissed {
-            background: #868e96;
-        }
-
-        .offer-card.dismissed {
-            opacity: 0.5;
-            background: #f1f3f5;
-        }
-
-        .archive-toggle {
-            text-align: center;
-            margin: 15px 0;
-        }
-
-        .archive-toggle label {
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .archive-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .section-subtitle {
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .hidden { display: none !important; }
+        #appContent { display: none; }
+
+        /* ── LOADING INDICATOR ── */
+        .loading-overlay {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 12px;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active { display: flex; }
+
+        .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid var(--card-border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { font-size: 13px; color: var(--text3); }
+
+        /* ── HELP LINK ── */
+        .help-link { color: var(--accent2); font-size: 13px; text-decoration: none; }
+        .help-link:hover { text-decoration: underline; }
+
+        @media (max-width: 400px) {
+            .cal-dot { font-size: 7px; }
+            .cal-day { min-height: 60px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🍔 Food Offers Tracker</h1>
-            <p>Never miss a restaurant deal!</p>
-        </header>
 
-        <!-- Setup Screen -->
-        <div id="setupScreen" class="setup-screen">
-            <h2>🔐 One-Time Setup</h2>
-            <p>Enter your Google API credentials below. These will be stored securely in your browser only.</p>
-            
-            <div class="info-box">
-                <p><strong>Need credentials?</strong> Follow the setup guide to get your free Google API Key and Client ID from Google Cloud Console.</p>
-            </div>
+<div class="container">
 
-            <div class="form-group">
-                <label for="clientId">Google Client ID</label>
-                <input type="text" id="clientId" placeholder="xxxxx.apps.googleusercontent.com">
-                <small>Looks like: 123456789-abc.apps.googleusercontent.com</small>
-            </div>
-
-            <div class="form-group">
-                <label for="apiKey">Google API Key</label>
-                <input type="text" id="apiKey" placeholder="AIzaSy...">
-                <small>Starts with: AIzaSy</small>
-            </div>
-
-            <button id="saveCredentials" class="btn">Save & Continue</button>
-            
-            <p style="margin-top: 20px; text-align: center;">
-                <a href="#" class="help-link" onclick="alert('1. Go to console.cloud.google.com\n2. Create new project\n3. Enable Gmail API\n4. Create API Key\n5. Create OAuth Client ID\n\nSee the full setup guide for detailed instructions!'); return false;">📖 How do I get these credentials?</a>
-            </p>
+    <!-- ═══ SETUP SCREEN ═══ -->
+    <div id="setupScreen" class="setup-screen">
+        <h2>🔐 One-Time Setup</h2>
+        <p>Enter your Google API credentials. These are stored in your browser only and never sent anywhere.</p>
+        <div class="info-box">
+            <p><strong>Need credentials?</strong> Get your API Key and Client ID from Google Cloud Console under APIs &amp; Services → Credentials.</p>
         </div>
-
-        <!-- Main App Content -->
-        <div id="appContent">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button id="connectBtn" class="connect-btn">Connect Gmail</button>
-                <button id="settingsBtn" class="settings-btn">⚙️ Change Credentials</button>
-                <div id="status" class="status"></div>
-            </div>
-
-            <!-- View Toggle -->
-            <div id="viewToggle" class="view-toggle" style="display: none;">
-                <button id="listViewBtn" class="view-toggle-btn active">📋 List View</button>
-                <button id="calendarViewBtn" class="view-toggle-btn">📅 Calendar View</button>
-            </div>
-
-            <!-- Archive Toggle -->
-            <div id="archiveToggle" class="archive-toggle" style="display: none;">
-                <label>
-                    <input type="checkbox" id="showUsedOffers" checked>
-                    Show used/archived offers
-                </label>
-                <br>
-                <label style="margin-top: 10px; display: inline-flex;">
-                    <input type="checkbox" id="showDismissedOffers">
-                    Show dismissed offers
-                </label>
-                <br>
-                <label style="margin-top: 10px; display: inline-flex;">
-                    <input type="checkbox" id="hideBirthdayOffers">
-                    Hide birthday offers
-                </label>
-                <br>
-                <label style="margin-top: 10px; display: inline-flex;">
-                    <input type="checkbox" id="autoScanToggle" checked>
-                    Auto-scan on page load
-                </label>
-            </div>
-
-            <!-- List View (Original) -->
-            <div id="listView" class="list-view">
-                <div id="birthdaySection" class="section" style="display: none;">
-                    <div class="section-header">
-                        <span class="section-icon">🎂</span>
-                        <span class="section-title">Birthday Offers</span>
-                        <span id="birthdayCount" class="count-badge">0</span>
-                    </div>
-                    <div id="birthdayOffers"></div>
-                </div>
-
-                <div id="regularSection" class="section" style="display: none;">
-                    <div class="section-header">
-                        <span class="section-icon">🍽️</span>
-                        <span class="section-title">All Offers</span>
-                        <span id="regularCount" class="count-badge">0</span>
-                    </div>
-                    <div id="regularOffers"></div>
-                </div>
-            </div>
-
-            <!-- Calendar View -->
-            <div id="calendarView" class="calendar-view">
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button id="prevMonth" class="calendar-nav-btn">‹</button>
-                        <div class="calendar-month-year" id="calendarMonthYear"></div>
-                        <button id="nextMonth" class="calendar-nav-btn">›</button>
-                    </div>
-                    <div class="calendar-grid" id="calendarGrid"></div>
-                </div>
-            </div>
-
-            <button id="refreshBtn" class="refresh-btn" style="display: none;">🔄 Refresh Offers</button>
-            <button id="exportBtn" class="refresh-btn" style="display: none; background: #51cf66; margin-top: 10px;">📥 Export to CSV</button>
-            <button id="trashBtn" class="refresh-btn" style="display: none; background: #ff6b6b; margin-top: 10px;">🗑️ Trash Old Offers</button>
+        <div class="form-group">
+            <label for="clientId">Google Client ID</label>
+            <input type="text" id="clientId" placeholder="xxxxx.apps.googleusercontent.com">
+            <small>Ends with .apps.googleusercontent.com</small>
         </div>
-
-        <!-- Offers Modal for Calendar -->
-        <div id="offersModal" class="offers-modal">
-            <div class="offers-modal-content">
-                <div class="offers-modal-header">
-                    <h3 id="modalDate"></h3>
-                    <button class="offers-modal-close" id="closeModal">×</button>
-                </div>
-                <div id="modalOffers"></div>
-            </div>
+        <div class="form-group">
+            <label for="apiKey">Google API Key</label>
+            <input type="text" id="apiKey" placeholder="AIzaSy...">
+            <small>Starts with AIzaSy</small>
         </div>
+        <button id="saveCredentials" class="btn-primary">Save &amp; Continue</button>
+        <p style="margin-top:16px;text-align:center;">
+            <a href="#" class="help-link" onclick="alert('1. Go to console.cloud.google.com\n2. Select your Restaurant Offers Tracker project\n3. APIs & Services → Credentials\n4. Copy your API Key and OAuth 2.0 Client ID'); return false;">📖 Where do I find these?</a>
+        </p>
     </div>
 
-    <script>
-        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify';
+    <!-- ═══ APP CONTENT ═══ -->
+    <div id="appContent">
 
-        let tokenClient;
-        let gapiInited = false;
-        let gisInited = false;
-        let CLIENT_ID = '';
-        let API_KEY = '';
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-top">
+                <div class="header-title">
+                    <span style="font-size:22px">🍔</span>
+                    <h1>Food Offers</h1>
+                </div>
+                <div style="display:flex;gap:6px">
+                    <div id="statPills" class="header-stats"></div>
+                    <button class="icon-btn" id="notifBtn" title="Enable Notifications" style="display:none">🔔</button>
+                    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+                </div>
+            </div>
 
-        // Check if credentials exist on load
-        window.addEventListener('load', function() {
-            const savedClientId = localStorage.getItem('gmail_client_id');
-            const savedApiKey = localStorage.getItem('gmail_api_key');
+            <!-- Connect + Status -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <button id="connectBtn" class="connect-btn">Connect Gmail</button>
+                <span id="status" class="status-text"></span>
+            </div>
 
-            if (savedClientId && savedApiKey) {
-                CLIENT_ID = savedClientId;
-                API_KEY = savedApiKey;
-                document.getElementById('setupScreen').classList.add('hidden');
-                document.getElementById('appContent').style.display = 'block';
-                initializeAPIs();
-            }
-        });
+            <!-- Search -->
+            <div class="search-bar" id="searchBar" style="display:none">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search restaurants...">
+                <button class="clear-btn" id="clearSearch">✕</button>
+            </div>
 
-        // Save credentials
-        document.getElementById('saveCredentials').addEventListener('click', function() {
-            const clientId = document.getElementById('clientId').value.trim();
-            const apiKey = document.getElementById('apiKey').value.trim();
+            <!-- Filter pills -->
+            <div class="filter-row" id="filterRow" style="display:none">
+                <button class="filter-pill active" data-filter="all">All</button>
+                <button class="filter-pill urgent-pill" data-filter="urgent">🔥 Expiring Soon</button>
+                <button class="filter-pill birthday-pill" data-filter="birthday">🎂 Birthday</button>
+                <button class="filter-pill" data-filter="unused">Unused</button>
+                <button class="filter-pill" data-filter="used">Used</button>
+                <button class="filter-pill" data-filter="dismissed">Dismissed</button>
+            </div>
+        </div>
 
-            if (!clientId || !apiKey) {
-                alert('Please enter both Client ID and API Key');
-                return;
-            }
+        <!-- View / Sort row -->
+        <div class="view-sort-row" id="viewSortRow" style="display:none">
+            <div class="view-toggle">
+                <button class="view-btn active" id="listViewBtn">📋 List</button>
+                <button class="view-btn" id="calViewBtn">📅 Calendar</button>
+            </div>
+            <select class="sort-select" id="sortSelect">
+                <option value="expiry">Sort: Expiring soonest</option>
+                <option value="restaurant">Sort: Restaurant A–Z</option>
+                <option value="newest">Sort: Newest email</option>
+            </select>
+        </div>
 
-            if (!clientId.includes('.apps.googleusercontent.com')) {
-                alert('Client ID should look like: xxxxx.apps.googleusercontent.com');
-                return;
-            }
+        <!-- Loading -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Scanning your emails...</div>
+        </div>
 
-            if (!apiKey.startsWith('AIzaSy')) {
-                alert('API Key should start with: AIzaSy');
-                return;
-            }
+        <!-- List View -->
+        <div id="listView" class="content-area">
+            <div id="notifBanner" class="notif-banner hidden">
+                🔔 Get notified before offers expire
+                <button id="enableNotifBtn">Enable</button>
+            </div>
+            <div id="birthdaySection" class="hidden">
+                <div class="section-label">🎂 Birthday Offers</div>
+                <div id="birthdayOffers"></div>
+            </div>
+            <div id="regularSection" class="hidden">
+                <div class="section-label" id="regularLabel">All Offers</div>
+                <div id="regularOffers"></div>
+            </div>
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">🍽️</div>
+                <div class="empty-title">No offers found</div>
+                <div class="empty-sub" id="emptySubtext">Try adjusting your filters or refreshing.</div>
+            </div>
+        </div>
 
-            // Save to localStorage
-            localStorage.setItem('gmail_client_id', clientId);
-            localStorage.setItem('gmail_api_key', apiKey);
+        <!-- Calendar View -->
+        <div id="calView" class="content-area hidden">
+            <div class="calendar-wrap">
+                <div class="cal-header">
+                    <button class="cal-nav" id="prevMonth">‹</button>
+                    <div class="cal-month" id="calMonthLabel"></div>
+                    <button class="cal-nav" id="nextMonth">›</button>
+                </div>
+                <div class="cal-grid" id="calGrid"></div>
+            </div>
+        </div>
 
-            CLIENT_ID = clientId;
-            API_KEY = apiKey;
+        <!-- Bottom Actions -->
+        <div class="bottom-actions" id="bottomActions" style="display:none">
+            <button class="action-chip" id="refreshBtn">🔄 Refresh</button>
+            <button class="action-chip" id="exportBtn">📥 Export CSV</button>
+            <button class="action-chip danger" id="trashBtn">🗑️ Trash Old</button>
+        </div>
 
-            // Show main app
+    </div><!-- /appContent -->
+
+</div><!-- /container -->
+
+<!-- Calendar day modal -->
+<div class="modal-overlay" id="calModal">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <div class="modal-title" id="modalDate"></div>
+            <button class="modal-close" id="closeModal">×</button>
+        </div>
+        <div id="modalOffers"></div>
+    </div>
+</div>
+
+<!-- Settings panel -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="settings-sheet">
+        <div class="settings-title">
+            Settings
+            <button class="modal-close" id="closeSettings">×</button>
+        </div>
+        <div class="toggle-row">
+            <span class="toggle-label">Show used offers</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="showUsedOffers" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+        <div class="toggle-row">
+            <span class="toggle-label">Show dismissed offers</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="showDismissedOffers">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+        <div class="toggle-row">
+            <span class="toggle-label">Hide birthday offers</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="hideBirthdayOffers">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+        <div class="toggle-row">
+            <span class="toggle-label">Auto-scan on open</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoScanToggle" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+        <div style="margin-top:20px;">
+            <button class="btn-primary" id="changeCredsBtn" style="background:var(--card);border:1px solid var(--card-border);color:var(--text2);">Change API Credentials</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify';
+    let tokenClient, gapiInited = false, gisInited = false;
+    let CLIENT_ID = '', API_KEY = '';
+    let allOffersData = [];
+    let currentCalendarDate = new Date();
+    let showUsedOffers = true, showDismissedOffers = false, hideBirthdayOffers = false, autoScanEnabled = true;
+    let isScanning = false;
+    let activeFilter = 'all';
+    let searchQuery = '';
+    let currentSort = 'expiry';
+
+    // ── AVATAR COLORS ──
+    const AVATAR_COLORS = ['#7c6ef7','#ff6b9d','#ffa502','#2ed573','#1e90ff','#ff4757','#eccc68','#a29bfe'];
+    function avatarColor(name) {
+        let h = 0;
+        for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+        return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+    }
+
+    // ── INIT ──
+    window.addEventListener('load', function() {
+        const savedClientId = localStorage.getItem('gmail_client_id');
+        const savedApiKey = localStorage.getItem('gmail_api_key');
+        if (savedClientId && savedApiKey) {
+            CLIENT_ID = savedClientId; API_KEY = savedApiKey;
             document.getElementById('setupScreen').classList.add('hidden');
             document.getElementById('appContent').style.display = 'block';
-
-            // Initialize APIs
             initializeAPIs();
-        });
-
-        // Settings button to change credentials
-        document.getElementById('settingsBtn').addEventListener('click', function() {
-            if (confirm('Do you want to change your API credentials? This will require you to re-enter them.')) {
-                localStorage.removeItem('gmail_client_id');
-                localStorage.removeItem('gmail_api_key');
-                document.getElementById('appContent').style.display = 'none';
-                document.getElementById('setupScreen').classList.remove('hidden');
-                document.getElementById('clientId').value = '';
-                document.getElementById('apiKey').value = '';
-            }
-        });
-
-        function initializeAPIs() {
-            // Load Google API
-            const script1 = document.createElement('script');
-            script1.src = 'https://apis.google.com/js/api.js';
-            script1.onload = gapiLoaded;
-            document.body.appendChild(script1);
-
-            const script2 = document.createElement('script');
-            script2.src = 'https://accounts.google.com/gsi/client';
-            script2.onload = gisLoaded;
-            document.body.appendChild(script2);
         }
+        loadSettings();
+        maybeShowNotifBanner();
+    });
 
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
+    function loadSettings() {
+        showUsedOffers = localStorage.getItem('show_used') !== 'false';
+        showDismissedOffers = localStorage.getItem('show_dismissed') === 'true';
+        hideBirthdayOffers = localStorage.getItem('hide_birthday') === 'true';
+        autoScanEnabled = localStorage.getItem('auto_scan_enabled') !== 'false';
+        document.getElementById('showUsedOffers').checked = showUsedOffers;
+        document.getElementById('showDismissedOffers').checked = showDismissedOffers;
+        document.getElementById('hideBirthdayOffers').checked = hideBirthdayOffers;
+        document.getElementById('autoScanToggle').checked = autoScanEnabled;
+    }
+
+    // ── CREDENTIALS ──
+    document.getElementById('saveCredentials').addEventListener('click', function() {
+        const clientId = document.getElementById('clientId').value.trim();
+        const apiKey = document.getElementById('apiKey').value.trim();
+        if (!clientId || !apiKey) { alert('Please enter both credentials'); return; }
+        if (!clientId.includes('.apps.googleusercontent.com')) { alert('Client ID should end with .apps.googleusercontent.com'); return; }
+        if (!apiKey.startsWith('AIzaSy')) { alert('API Key should start with AIzaSy'); return; }
+        localStorage.setItem('gmail_client_id', clientId);
+        localStorage.setItem('gmail_api_key', apiKey);
+        CLIENT_ID = clientId; API_KEY = apiKey;
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('appContent').style.display = 'block';
+        initializeAPIs();
+    });
+
+    document.getElementById('changeCredsBtn').addEventListener('click', function() {
+        if (confirm('Reset credentials? You will need to re-enter them.')) {
+            localStorage.removeItem('gmail_client_id'); localStorage.removeItem('gmail_api_key');
+            document.getElementById('appContent').style.display = 'none';
+            document.getElementById('setupScreen').classList.remove('hidden');
+            document.getElementById('clientId').value = ''; document.getElementById('apiKey').value = '';
+            closeSettings();
         }
+    });
 
-        async function initializeGapiClient() {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
-            });
-            gapiInited = true;
-            maybeEnableAutoScan();
+    // ── APIS ──
+    function initializeAPIs() {
+        const s1 = document.createElement('script');
+        s1.src = 'https://apis.google.com/js/api.js'; s1.onload = gapiLoaded;
+        document.body.appendChild(s1);
+        const s2 = document.createElement('script');
+        s2.src = 'https://accounts.google.com/gsi/client'; s2.onload = gisLoaded;
+        document.body.appendChild(s2);
+    }
+
+    function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+
+    async function initializeGapiClient() {
+        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'] });
+        gapiInited = true; maybeEnableAutoScan();
+    }
+
+    function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' });
+        gisInited = true; maybeEnableAutoScan();
+    }
+
+    function maybeEnableAutoScan() {
+        if (gapiInited && gisInited) setTimeout(autoConnectAndScan, 500);
+    }
+
+    // ── AUTH ──
+    function saveAccessToken(t) {
+        localStorage.setItem('gmail_access_token', t);
+        localStorage.setItem('gmail_token_expiry', (Date.now() + 3600000).toString());
+    }
+
+    function getAccessToken() {
+        const t = localStorage.getItem('gmail_access_token');
+        const e = localStorage.getItem('gmail_token_expiry');
+        return (t && e && Date.now() < parseInt(e)) ? t : null;
+    }
+
+    function clearAccessToken() {
+        localStorage.removeItem('gmail_access_token'); localStorage.removeItem('gmail_token_expiry');
+    }
+
+    async function autoConnectAndScan() {
+        if (!gapiInited || !gisInited || !autoScanEnabled || isScanning) return;
+        const savedToken = getAccessToken();
+        if (savedToken) {
+            gapi.client.setToken({ access_token: savedToken });
+            setConnected();
+            try { await scanEmails(); }
+            catch (e) { clearAccessToken(); attemptSilentAuth(); }
+        } else {
+            attemptSilentAuth();
         }
+    }
 
-        function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: '',
-            });
-            gisInited = true;
-            maybeEnableAutoScan();
-        }
-
-        function maybeEnableAutoScan() {
-            if (gapiInited && gisInited) {
-                setTimeout(autoConnectAndScan, 500);
-            }
-        }
-
-        document.getElementById('connectBtn').addEventListener('click', handleAuthClick);
-        document.getElementById('refreshBtn').addEventListener('click', scanEmails);
-        document.getElementById('exportBtn').addEventListener('click', exportToCSV);
-        document.getElementById('trashBtn').addEventListener('click', trashOldOffers);
-
-        let allOffersData = [];
-        let currentCalendarDate = new Date();
-        let showUsedOffers = true;
-        let showDismissedOffers = false;
-        let hideBirthdayOffers = false;
-        let autoScanEnabled = true;
-        let isScanning = false;
-
-        // OAuth token management
-        function saveAccessToken(accessToken) {
-            const expiryTime = Date.now() + (3600 * 1000); // 1 hour from now
-            localStorage.setItem('gmail_access_token', accessToken);
-            localStorage.setItem('gmail_token_expiry', expiryTime.toString());
-        }
-
-        function getAccessToken() {
-            const token = localStorage.getItem('gmail_access_token');
-            const expiry = localStorage.getItem('gmail_token_expiry');
-            
-            if (token && expiry && Date.now() < parseInt(expiry)) {
-                return token;
-            }
-            return null;
-        }
-
-        function clearAccessToken() {
-            localStorage.removeItem('gmail_access_token');
-            localStorage.removeItem('gmail_token_expiry');
-        }
-
-        // Auto-scan preference
-        function isAutoScanEnabled() {
-            const setting = localStorage.getItem('auto_scan_enabled');
-            return setting === null || setting === 'true'; // Default to true
-        }
-
-        function setAutoScanEnabled(enabled) {
-            localStorage.setItem('auto_scan_enabled', enabled ? 'true' : 'false');
-            autoScanEnabled = enabled;
-        }
-
-        // Initialize auto-scan setting
-        autoScanEnabled = isAutoScanEnabled();
-        if (document.getElementById('autoScanToggle')) {
-            document.getElementById('autoScanToggle').checked = autoScanEnabled;
-        }
-
-        // Used offers tracking
-        function getUsedOffers() {
-            const used = localStorage.getItem('used_offers');
-            return used ? JSON.parse(used) : [];
-        }
-
-        function markOfferAsUsed(offerId) {
-            const usedOffers = getUsedOffers();
-            if (!usedOffers.includes(offerId)) {
-                usedOffers.push(offerId);
-                localStorage.setItem('used_offers', JSON.stringify(usedOffers));
-            }
-        }
-
-        function unmarkOfferAsUsed(offerId) {
-            let usedOffers = getUsedOffers();
-            usedOffers = usedOffers.filter(id => id !== offerId);
-            localStorage.setItem('used_offers', JSON.stringify(usedOffers));
-        }
-
-        function isOfferUsed(offerId) {
-            return getUsedOffers().includes(offerId);
-        }
-
-        function getDismissedOffers() {
-            const dismissed = localStorage.getItem('dismissed_offers');
-            return dismissed ? JSON.parse(dismissed) : [];
-        }
-
-        function dismissOffer(offerId) {
-            const dismissedOffers = getDismissedOffers();
-            if (!dismissedOffers.includes(offerId)) {
-                dismissedOffers.push(offerId);
-                localStorage.setItem('dismissed_offers', JSON.stringify(dismissedOffers));
-            }
-        }
-
-        function undismissOffer(offerId) {
-            let dismissedOffers = getDismissedOffers();
-            dismissedOffers = dismissedOffers.filter(id => id !== offerId);
-            localStorage.setItem('dismissed_offers', JSON.stringify(dismissedOffers));
-        }
-
-        function isOfferDismissed(offerId) {
-            return getDismissedOffers().includes(offerId);
-        }
-
-        function generateOfferId(offer) {
-            // Create unique ID from restaurant + offer + expiration
-            return `${offer.restaurant}-${offer.offer}-${offer.expiresDate.toISOString()}`.replace(/[^a-zA-Z0-9-]/g, '');
-        }
-
-        // View toggle
-        document.getElementById('listViewBtn').addEventListener('click', function() {
-            document.getElementById('listView').style.display = 'block';
-            document.getElementById('calendarView').style.display = 'none';
-            this.classList.add('active');
-            document.getElementById('calendarViewBtn').classList.remove('active');
-        });
-
-        document.getElementById('calendarViewBtn').addEventListener('click', function() {
-            document.getElementById('listView').style.display = 'none';
-            document.getElementById('calendarView').style.display = 'block';
-            this.classList.add('active');
-            document.getElementById('listViewBtn').classList.remove('active');
-            renderCalendar(currentCalendarDate);
-        });
-
-        // Calendar navigation
-        document.getElementById('prevMonth').addEventListener('click', function() {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-            renderCalendar(currentCalendarDate);
-        });
-
-        document.getElementById('nextMonth').addEventListener('click', function() {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-            renderCalendar(currentCalendarDate);
-        });
-
-        // Modal controls
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('offersModal').classList.remove('active');
-        });
-
-        document.getElementById('offersModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
-        });
-
-        // Show/hide used offers toggle
-        document.getElementById('showUsedOffers').addEventListener('change', function() {
-            showUsedOffers = this.checked;
-            // Re-render current view
-            const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-            const regularOffers = allOffersData.filter(o => !o.isBirthday);
-            displayOffers(birthdayOffers, regularOffers);
-            if (document.getElementById('calendarView').style.display !== 'none') {
-                renderCalendar(currentCalendarDate);
-            }
-        });
-
-        document.getElementById('showDismissedOffers').addEventListener('change', function() {
-            showDismissedOffers = this.checked;
-            // Re-render current view
-            const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-            const regularOffers = allOffersData.filter(o => !o.isBirthday);
-            displayOffers(birthdayOffers, regularOffers);
-            if (document.getElementById('calendarView').style.display !== 'none') {
-                renderCalendar(currentCalendarDate);
-            }
-        });
-
-        document.getElementById('hideBirthdayOffers').addEventListener('change', function() {
-            hideBirthdayOffers = this.checked;
-            // Re-render current view
-            const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-            const regularOffers = allOffersData.filter(o => !o.isBirthday);
-            displayOffers(birthdayOffers, regularOffers);
-            if (document.getElementById('calendarView').style.display !== 'none') {
-                renderCalendar(currentCalendarDate);
-            }
-        });
-
-        // Auto-scan toggle
-        document.getElementById('autoScanToggle').addEventListener('change', function() {
-            setAutoScanEnabled(this.checked);
-            if (this.checked) {
-                document.getElementById('status').textContent = 'Auto-scan enabled - will load automatically next time';
-            } else {
-                document.getElementById('status').textContent = 'Auto-scan disabled - click Connect Gmail to load offers';
-            }
-        });
-
-        function handleAuthClick() {
-            if (!gapiInited || !gisInited) {
-                alert('Please wait for Google APIs to load...');
+    function attemptSilentAuth() {
+        tokenClient.callback = async (resp) => {
+            if (resp.error !== undefined) {
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('connectBtn').textContent = 'Connect Gmail';
+                document.getElementById('connectBtn').classList.remove('connected');
+                document.getElementById('status').textContent = 'Click Connect Gmail to load offers';
                 return;
             }
+            if (resp.access_token) { saveAccessToken(resp.access_token); gapi.client.setToken({ access_token: resp.access_token }); }
+            setConnected();
+            await scanEmails();
+        };
+        tokenClient.requestAccessToken({ prompt: '' });
+    }
 
-            tokenClient.callback = async (resp) => {
-                if (resp.error !== undefined) {
-                    clearAccessToken();
-                    throw (resp);
-                }
-                
-                // Save access token
-                if (resp.access_token) {
-                    saveAccessToken(resp.access_token);
-                }
-                
-                document.getElementById('status').textContent = 'Connected! Scanning emails...';
-                document.getElementById('connectBtn').disabled = true;
-                await scanEmails();
-            };
+    function setConnected() {
+        const btn = document.getElementById('connectBtn');
+        btn.textContent = '✓ Connected'; btn.disabled = true; btn.classList.add('connected');
+    }
 
-            if (gapi.client.getToken() === null) {
-                tokenClient.requestAccessToken({prompt: 'consent'});
-            } else {
-                tokenClient.requestAccessToken({prompt: ''});
-            }
+    document.getElementById('connectBtn').addEventListener('click', function() {
+        if (!gapiInited || !gisInited) { alert('Please wait for Google APIs to load...'); return; }
+        tokenClient.callback = async (resp) => {
+            if (resp.error !== undefined) { clearAccessToken(); throw resp; }
+            if (resp.access_token) { saveAccessToken(resp.access_token); }
+            setConnected();
+            document.getElementById('status').textContent = 'Scanning emails...';
+            await scanEmails();
+        };
+        if (gapi.client.getToken() === null) {
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        } else {
+            tokenClient.requestAccessToken({ prompt: '' });
         }
+    });
 
-        // Auto-connect and scan if we have valid credentials and tokens
-        async function autoConnectAndScan() {
-            if (!gapiInited || !gisInited) return;
-            if (!autoScanEnabled || isScanning) return;
+    // ── SETTINGS PANEL ──
+    document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsPanel').classList.add('active'));
+    document.getElementById('closeSettings').addEventListener('click', closeSettings);
+    document.getElementById('settingsPanel').addEventListener('click', e => { if (e.target === document.getElementById('settingsPanel')) closeSettings(); });
 
-            const savedToken = getAccessToken();
+    function closeSettings() { document.getElementById('settingsPanel').classList.remove('active'); }
 
-            if (savedToken) {
-                // Valid cached token — use it directly
-                gapi.client.setToken({access_token: savedToken});
-                document.getElementById('status').textContent = 'Auto-loading your offers...';
-                document.getElementById('connectBtn').textContent = '✓ Connected';
-                document.getElementById('connectBtn').disabled = true;
-                document.getElementById('connectBtn').style.opacity = '0.7';
-                try {
-                    await scanEmails();
-                } catch (error) {
-                    console.error('Auto-scan failed, trying silent refresh:', error);
-                    clearAccessToken();
-                    attemptSilentAuth();
-                }
-            } else {
-                // Token expired — silently request a new one without showing consent popup
-                attemptSilentAuth();
-            }
+    ['showUsedOffers','showDismissedOffers','hideBirthdayOffers','autoScanToggle'].forEach(id => {
+        document.getElementById(id).addEventListener('change', function() {
+            if (id === 'showUsedOffers') { showUsedOffers = this.checked; localStorage.setItem('show_used', this.checked); }
+            if (id === 'showDismissedOffers') { showDismissedOffers = this.checked; localStorage.setItem('show_dismissed', this.checked); }
+            if (id === 'hideBirthdayOffers') { hideBirthdayOffers = this.checked; localStorage.setItem('hide_birthday', this.checked); }
+            if (id === 'autoScanToggle') { autoScanEnabled = this.checked; localStorage.setItem('auto_scan_enabled', this.checked); }
+            if (allOffersData.length) renderListView();
+        });
+    });
+
+    // ── SEARCH ──
+    document.getElementById('searchInput').addEventListener('input', function() {
+        searchQuery = this.value.toLowerCase().trim();
+        document.getElementById('clearSearch').style.display = searchQuery ? 'block' : 'none';
+        renderListView();
+    });
+
+    document.getElementById('clearSearch').addEventListener('click', function() {
+        document.getElementById('searchInput').value = '';
+        searchQuery = ''; this.style.display = 'none';
+        renderListView();
+    });
+
+    // ── FILTER PILLS ──
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            activeFilter = this.dataset.filter;
+            renderListView();
+        });
+    });
+
+    // ── SORT ──
+    document.getElementById('sortSelect').addEventListener('change', function() {
+        currentSort = this.value;
+        renderListView();
+    });
+
+    // ── VIEW TOGGLE ──
+    document.getElementById('listViewBtn').addEventListener('click', function() {
+        document.getElementById('listView').classList.remove('hidden');
+        document.getElementById('calView').classList.add('hidden');
+        this.classList.add('active');
+        document.getElementById('calViewBtn').classList.remove('active');
+    });
+
+    document.getElementById('calViewBtn').addEventListener('click', function() {
+        document.getElementById('calView').classList.remove('hidden');
+        document.getElementById('listView').classList.add('hidden');
+        this.classList.add('active');
+        document.getElementById('listViewBtn').classList.remove('active');
+        renderCalendar(currentCalendarDate);
+    });
+
+    // ── CALENDAR NAV ──
+    document.getElementById('prevMonth').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()-1); renderCalendar(currentCalendarDate); });
+    document.getElementById('nextMonth').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+1); renderCalendar(currentCalendarDate); });
+
+    // ── MODAL ──
+    document.getElementById('closeModal').addEventListener('click', () => document.getElementById('calModal').classList.remove('active'));
+    document.getElementById('calModal').addEventListener('click', e => { if (e.target === document.getElementById('calModal')) document.getElementById('calModal').classList.remove('active'); });
+
+    // ── BOTTOM ACTIONS ──
+    document.getElementById('refreshBtn').addEventListener('click', scanEmails);
+    document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+    document.getElementById('trashBtn').addEventListener('click', trashOldOffers);
+
+    // ── NOTIFICATIONS ──
+    function maybeShowNotifBanner() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            document.getElementById('notifBanner').classList.remove('hidden');
         }
+    }
 
-        // Silently refresh the OAuth token in the background.
-        // Since the user already granted permission, Google won't show a popup.
-        // Only falls back to showing the Connect button if something goes wrong.
-        function attemptSilentAuth() {
-            tokenClient.callback = async (resp) => {
-                if (resp.error !== undefined) {
-                    // Silent auth failed — show the Connect button as fallback
-                    document.getElementById('connectBtn').style.display = '';
-                    document.getElementById('connectBtn').disabled = false;
-                    document.getElementById('connectBtn').textContent = 'Connect Gmail';
-                    document.getElementById('connectBtn').style.opacity = '1';
-                    document.getElementById('status').textContent = 'Click Connect Gmail to load your offers';
-                    return;
-                }
-                if (resp.access_token) {
-                    saveAccessToken(resp.access_token);
-                    gapi.client.setToken({access_token: resp.access_token});
-                }
-                document.getElementById('status').textContent = 'Auto-loading your offers...';
-                document.getElementById('connectBtn').textContent = '✓ Connected';
-                document.getElementById('connectBtn').disabled = true;
-                document.getElementById('connectBtn').style.opacity = '0.7';
-                await scanEmails();
-            };
-
-            // prompt: '' means "don't show the consent screen if already granted"
-            tokenClient.requestAccessToken({prompt: ''});
+    document.getElementById('enableNotifBtn')?.addEventListener('click', async () => {
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+            document.getElementById('notifBanner').classList.add('hidden');
+            scheduleExpiryNotifications();
         }
+    });
 
-        async function scanEmails() {
-            if (isScanning) {
-                return; // Prevent duplicate scans
-            }
-            
-            isScanning = true;
-            
-            try {
-                document.getElementById('status').textContent = 'Scanning your emails...';
-                
-                // Search for food-related emails from the past year
-                const queries = [
-                    'subject:(offer OR deal OR coupon OR discount OR free) (restaurant OR food OR dining OR pizza OR burger OR cafe OR coffee)',
-                    'birthday (restaurant OR dining OR food OR free)',
-                    'from:(doordash OR ubereats OR grubhub OR restaurant OR dine)',
-                    'reward points (restaurant OR food OR dining)',
-                    // Common restaurant chains
-                    'from:(burgerking OR mcdonald OR wendys OR subway OR chickfila OR tacobell OR kfc OR pizzahut OR dominos OR papajohns)',
-                    'from:(chipotle OR pandaexpress OR olivegarden OR redlobster OR buffalowildwings OR outback OR applebees OR chilis)',
-                    // Reward/loyalty programs
-                    'subject:(rewards OR loyalty OR points) (food OR restaurant OR dining)',
-                    // Broader food terms
-                    'subject:(special OR promo) (restaurant OR cafe OR kitchen OR grill OR diner OR eatery OR bistro)'
-                ];
-
-                let allOffers = [];
-                
-                for (let query of queries) {
-                    const response = await gapi.client.gmail.users.messages.list({
-                        userId: 'me',
-                        q: query,
-                        maxResults: 100
-                    });
-
-                    if (response.result.messages) {
-                        for (let message of response.result.messages) {
-                            const details = await gapi.client.gmail.users.messages.get({
-                                userId: 'me',
-                                id: message.id,
-                                format: 'full'
-                            });
-                            
-                            const offer = parseEmailForOffer(details.result);
-                            if (offer) {
-                                allOffers.push(offer);
-                            }
-                        }
-                    }
-                }
-
-                // Remove duplicates based on restaurant name and offer
-                allOffers = removeDuplicates(allOffers);
-                
-                // Filter out offers expired by more than 30 days
-                const now = new Date();
-                const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-                allOffers = allOffers.filter(offer => offer.expiresDate >= thirtyDaysAgo);
-                
-                // Add unique IDs and mark used status
-                allOffers.forEach(offer => {
-                    offer.id = generateOfferId(offer);
-                    offer.isUsed = isOfferUsed(offer.id);
-                    offer.isDismissed = isOfferDismissed(offer.id);
-                });
-                
-                // Store globally for CSV export
-                allOffersData = allOffers;
-                
-                // Separate birthday offers
-                const birthdayOffers = allOffers.filter(o => o.isBirthday);
-                const regularOffers = allOffers.filter(o => !o.isBirthday);
-
-                // Sort by newest email date first (most recent at top)
-                birthdayOffers.sort((a, b) => b.emailDate - a.emailDate);
-                regularOffers.sort((a, b) => b.emailDate - a.emailDate);
-
-                displayOffers(birthdayOffers, regularOffers);
-                
-                document.getElementById('status').textContent = `Found ${allOffers.length} offers!`;
-                document.getElementById('refreshBtn').style.display = 'block';
-                document.getElementById('exportBtn').style.display = 'block';
-                document.getElementById('trashBtn').style.display = 'block';
-                document.getElementById('viewToggle').style.display = 'flex';
-                document.getElementById('archiveToggle').style.display = 'block';
-                
-                // Reset calendar to current month
-                currentCalendarDate = new Date();
-                renderCalendar(currentCalendarDate);
-                
-            } catch (err) {
-                console.error('Error:', err);
-                
-                // Check if it's an auth error
-                if (err.status === 401 || err.status === 403) {
-                    clearAccessToken();
-                    document.getElementById('status').textContent = 'Session expired. Click Connect Gmail to reload.';
-                    document.getElementById('connectBtn').disabled = false;
-                    document.getElementById('connectBtn').textContent = 'Connect Gmail';
-                    document.getElementById('connectBtn').style.opacity = '1';
-                } else {
-                    document.getElementById('status').textContent = 'Error scanning emails. Please try again.';
-                }
-            } finally {
-                isScanning = false;
-            }
+    document.getElementById('notifBtn')?.addEventListener('click', async () => {
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+            document.getElementById('notifBtn').style.display = 'none';
+            scheduleExpiryNotifications();
         }
+    });
 
-        function cleanHtmlText(html) {
-            // Remove HTML tags but keep the text
-            let text = html.replace(/<style[^>]*>.*?<\/style>/gi, '');
-            text = text.replace(/<script[^>]*>.*?<\/script>/gi, '');
-            text = text.replace(/<[^>]+>/g, ' ');
-            
-            // Decode HTML entities
-            text = text.replace(/&nbsp;/g, ' ');
-            text = text.replace(/&amp;/g, '&');
-            text = text.replace(/&lt;/g, '<');
-            text = text.replace(/&gt;/g, '>');
-            text = text.replace(/&quot;/g, '"');
-            text = text.replace(/&#39;/g, "'");
-            text = text.replace(/&rsquo;/g, "'");
-            text = text.replace(/&lsquo;/g, "'");
-            text = text.replace(/&rdquo;/g, '"');
-            text = text.replace(/&ldquo;/g, '"');
-            
-            // Normalize whitespace
-            text = text.replace(/\s+/g, ' ');
-            text = text.trim();
-            
-            // Remove emojis and special Unicode characters that cause display issues
-            // This removes most emojis, symbols, and other problematic characters
-            text = text.replace(/[\u{1F600}-\u{1F64F}]/gu, ''); // Emoticons
-            text = text.replace(/[\u{1F300}-\u{1F5FF}]/gu, ''); // Misc Symbols and Pictographs
-            text = text.replace(/[\u{1F680}-\u{1F6FF}]/gu, ''); // Transport and Map
-            text = text.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, ''); // Flags
-            text = text.replace(/[\u{2600}-\u{26FF}]/gu, '');   // Misc symbols
-            text = text.replace(/[\u{2700}-\u{27BF}]/gu, '');   // Dingbats
-            text = text.replace(/[\u{1F900}-\u{1F9FF}]/gu, ''); // Supplemental Symbols and Pictographs
-            text = text.replace(/[\u{1FA00}-\u{1FA6F}]/gu, ''); // Chess Symbols
-            text = text.replace(/[\u{1FA70}-\u{1FAFF}]/gu, ''); // Symbols and Pictographs Extended-A
-            text = text.replace(/[\u{FE00}-\u{FE0F}]/gu, '');   // Variation Selectors
-            text = text.replace(/[\u{200D}]/gu, '');            // Zero Width Joiner
-            
-            // Remove any remaining non-printable or problematic characters
-            text = text.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-            
-            // Clean up any double spaces created by emoji removal
-            text = text.replace(/\s+/g, ' ').trim();
-            
-            return text;
+    function scheduleExpiryNotifications() {
+        if (Notification.permission !== 'granted' || !allOffersData.length) return;
+        const now = new Date(); now.setHours(0,0,0,0);
+        const expiringSoon = allOffersData.filter(o => {
+            if (o.isUsed || o.isDismissed) return false;
+            const d = new Date(o.expiresDate); d.setHours(0,0,0,0);
+            const days = Math.floor((d-now)/(1000*60*60*24));
+            return days >= 0 && days <= 2;
+        });
+        if (expiringSoon.length > 0) {
+            new Notification('🍔 Food Offers Expiring Soon!', {
+                body: `${expiringSoon.length} offer${expiringSoon.length > 1 ? 's' : ''} expire within 2 days: ${expiringSoon.slice(0,3).map(o=>o.restaurant).join(', ')}`,
+                icon: '/restaurant-offers/icon_192x192.png'
+            });
         }
+    }
 
-        function parseEmailForOffer(message) {
-            try {
-                const headers = message.payload.headers;
-                const subject = headers.find(h => h.name === 'Subject')?.value || '';
-                const from = headers.find(h => h.name === 'From')?.value || '';
-                const date = new Date(parseInt(message.internalDate));
-                
-                // Validate date
-                if (isNaN(date.getTime())) {
-                    console.warn('Invalid email date for message:', message.id);
-                    return null;
-                }
-                
-                // Get email body - recursively extract from all parts
-                let body = '';
-                
-                function extractBody(payload) {
-                    if (payload.body && payload.body.data) {
-                        try {
-                            body += atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-                        } catch (e) {
-                            console.error('Error decoding body:', e);
-                        }
-                    }
-                    
-                    if (payload.parts) {
-                        for (let part of payload.parts) {
-                            // Handle text/plain and text/html
-                            if (part.mimeType === 'text/plain' || part.mimeType === 'text/html') {
-                                extractBody(part);
-                            }
-                            // Recursively check multipart
-                            else if (part.mimeType && part.mimeType.startsWith('multipart/')) {
-                                extractBody(part);
-                            }
-                        }
-                    }
-                }
-                
-                extractBody(message.payload);
-                
-                // Clean HTML from body
-                body = cleanHtmlText(body);
+    // ── SCAN EMAILS ──
+    async function scanEmails() {
+        if (isScanning) return;
+        isScanning = true;
+        document.getElementById('loadingOverlay').classList.add('active');
+        document.getElementById('status').textContent = 'Scanning...';
 
-                // Check if it's food-related
-                const foodKeywords = ['restaurant', 'food', 'pizza', 'burger', 'coffee', 'dining', 'meal', 'cafe', 'eat', 'sushi', 'taco', 'sandwich', 'delivery', 'kitchen', 'grill', 'bistro', 'diner', 'wings', 'bbq', 'chicken', 'steak'];
-                const offerKeywords = ['offer', 'deal', 'coupon', 'discount', 'free', 'off', '%', 'save', 'reward', 'promo', 'special', 'birthday', 'bonus', 'points', 'loyalty'];
-                
-                // Known restaurant chains/services that should always be included
-                const knownRestaurants = ['burger king', 'mcdonald', 'wendy', 'subway', 'chick-fil-a', 'taco bell', 'kfc', 'pizza hut', 'domino', 'papa john', 'chipotle', 'panda express', 'olive garden', 'red lobster', 'buffalo wild', 'outback', 'applebee', 'chili', 'doordash', 'ubereats', 'grubhub', 'firehouse', 'jimmy john', 'panera', 'starbucks', 'dunkin'];
-                
-                const text = (subject + ' ' + body + ' ' + from).toLowerCase();
-                
-                const hasFood = foodKeywords.some(k => text.includes(k));
-                const hasOffer = offerKeywords.some(k => text.includes(k));
-                const isKnownRestaurant = knownRestaurants.some(k => text.includes(k));
-                
-                // Accept if: (has food AND has offer) OR is from a known restaurant
-                if (!(hasFood && hasOffer) && !isKnownRestaurant) return null;
-
-                // Extract restaurant name
-                const restaurant = extractRestaurantName(from, subject, body);
-                
-                // Use a more lenient validation - accept names with at least 1 character
-                if (!restaurant || restaurant.length < 1 || restaurant === 'Restaurant Offer') {
-                    console.warn('Using generic restaurant name for email from:', from);
-                    // Try to extract something from the from field as last resort
-                    const fromMatch = from.match(/^([^<@]+)/);
-                    if (!fromMatch) {
-                        console.warn('Could not extract any restaurant info, skipping');
-                        return null;
-                    }
-                }
-                
-                // Check if birthday offer
-                const isBirthday = /birthday|b-day|bday|born|celebration/i.test(text);
-                
-                // Extract offer details
-                const offer = extractOfferDetails(subject, body);
-                
-                // Extract expiration date
-                const expiresDate = extractExpirationDate(body, date);
-                
-                // Validate expiration date - if somehow invalid, use 90 days from email as default
-                let finalExpiryDate = expiresDate;
-                if (!expiresDate || isNaN(expiresDate.getTime())) {
-                    finalExpiryDate = new Date(date);
-                    finalExpiryDate.setDate(finalExpiryDate.getDate() + 90);
-                    console.warn('Using default 90-day expiry for:', restaurant);
-                }
-                
-                // Extract location if available
-                const location = extractLocation(body);
-
-                return {
-                    restaurant,
-                    offer,
-                    isBirthday,
-                    expiresDate: finalExpiryDate,
-                    expiresText: formatExpiration(finalExpiryDate),
-                    location,
-                    emailDate: date,
-                    subject,
-                    messageId: message.id
-                };
-            } catch (error) {
-                console.error('Error parsing email:', error, message.id);
-                return null;
-            }
-        }
-
-        function extractRestaurantName(from, subject, body) {
-            // Try to extract from "From" field first
-            const fromMatch = from.match(/^([^<@]+)/);
-            if (fromMatch) {
-                let name = fromMatch[1].trim();
-                
-                // Clean up common email prefixes and suffixes
-                name = name.replace(/^(info|no-reply|noreply|contact|support|team|hello|hi|news|marketing|offers|deals)\s*/i, '');
-                name = name.replace(/\s+(info|no-reply|noreply|contact|support|team)$/i, '');
-                
-                // Remove common domain indicators
-                name = name.replace(/\s*\|\s*.*/g, ''); // Remove "Name | Domain"
-                name = name.replace(/\s*-\s*.*/g, ''); // Remove "Name - Something"
-                
-                // Clean up quotes and extra spaces
-                name = name.replace(/["""]/g, '').trim();
-                
-                // Remove emojis and special characters
-                name = name.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
-                name = name.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
-                name = name.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
-                name = name.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
-                name = name.replace(/[\u{2600}-\u{26FF}]/gu, '');
-                name = name.replace(/[\u{2700}-\u{27BF}]/gu, '');
-                name = name.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
-                name = name.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-                name = name.replace(/\s+/g, ' ').trim();
-                
-                if (name.length > 2 && name.length < 50) {
-                    return name;
-                }
-            }
-            
-            // Try to find brand names in subject line
-            const subjectBrandPatterns = [
-                // "Your Chipotle Rewards" -> "Chipotle"
-                /(?:your|from|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:reward|offer|deal|coupon)/i,
-                // "Panda Express: Special Offer"
-                /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s*[:|-]/i,
-                // Just capitalized words at start
-                /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})/
+        try {
+            const queries = [
+                'subject:(offer OR deal OR coupon OR discount OR free) (restaurant OR food OR dining OR pizza OR burger OR cafe OR coffee)',
+                'birthday (restaurant OR dining OR food OR free)',
+                'from:(doordash OR ubereats OR grubhub OR restaurant OR dine)',
+                'reward points (restaurant OR food OR dining)',
+                'from:(burgerking OR mcdonald OR wendys OR subway OR chickfila OR tacobell OR kfc OR pizzahut OR dominos OR papajohns)',
+                'from:(chipotle OR pandaexpress OR olivegarden OR redlobster OR buffalowildwings OR outback OR applebees OR chilis)',
+                'subject:(rewards OR loyalty OR points) (food OR restaurant OR dining)',
+                'subject:(special OR promo) (restaurant OR cafe OR kitchen OR grill OR diner OR eatery OR bistro)'
             ];
-            
-            for (let pattern of subjectBrandPatterns) {
-                const match = subject.match(pattern);
-                if (match && match[1]) {
-                    const name = match[1].trim();
-                    if (name.length > 2 && name.length < 50) {
-                        return name;
+
+            // Track seen messageIds to avoid duplicate processing
+            const seenMessageIds = new Set();
+            let allOffers = [];
+
+            for (let query of queries) {
+                document.getElementById('loadingText').textContent = `Searching: ${query.substring(0,40)}...`;
+                const response = await gapi.client.gmail.users.messages.list({ userId: 'me', q: query, maxResults: 100 });
+                if (response.result.messages) {
+                    for (let message of response.result.messages) {
+                        if (seenMessageIds.has(message.id)) continue;
+                        seenMessageIds.add(message.id);
+                        const details = await gapi.client.gmail.users.messages.get({ userId: 'me', id: message.id, format: 'full' });
+                        const offer = parseEmailForOffer(details.result);
+                        if (offer) allOffers.push(offer);
                     }
                 }
             }
-            
-            // Try to find restaurant/brand names in body (first 500 chars)
-            const bodyStart = body.substring(0, 500);
-            const bodyPatterns = [
-                // "Welcome to Subway" or "Visit Subway"
-                /(?:welcome to|visit|from|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:restaurant|cafe|kitchen|grill|eatery)/i,
-                // Brand followed by location/restaurant keywords
-                /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:Restaurant|Cafe|Coffee|Kitchen|Grill|Bar|Pizzeria|Deli)/i
-            ];
-            
-            for (let pattern of bodyPatterns) {
-                const match = bodyStart.match(pattern);
-                if (match && match[1]) {
-                    const name = match[1].trim();
-                    if (name.length > 2 && name.length < 50) {
-                        return name;
-                    }
-                }
-            }
-            
-            // Final fallback - use cleaned from field or generic
-            if (fromMatch) {
-                let name = fromMatch[1].trim();
-                name = name.replace(/[^a-zA-Z0-9\s&'-]/g, '').trim();
-                if (name.length > 2 && name.length < 50) {
-                    return name;
-                }
-            }
-            
-            return 'Restaurant Offer';
-        }
 
-        function extractOfferDetails(subject, body) {
-            // Look for specific offer patterns - check body first, then subject
-            const text = body + ' ' + subject;
-            
-            const patterns = [
-                // Percentage off
-                /(\d+%\s+off[^.!?\n]{0,30})/i,
-                // Dollar amount off
-                /(\$\d+(?:\.\d{2})?\s+off[^.!?\n]{0,30})/i,
-                // BOGO patterns
-                /(buy\s+(?:one|1)\s+get\s+(?:one|1)(?:\s+free)?[^.!?\n]{0,30})/i,
-                /(bogo[^.!?\n]{0,30})/i,
-                // Free item patterns
-                /(free\s+[a-z\s]{3,30}(?:with|when)[^.!?\n]{0,40})/i,
-                /(complimentary\s+[a-z\s]{3,30})/i,
-                // Get/Receive patterns
-                /((?:get|receive)\s+(?:a\s+)?free\s+[a-z\s]{3,30})/i,
-                // Reward/points patterns  
-                /(\d+\s+(?:points|rewards)[^.!?\n]{0,30})/i,
-                // Special/discount patterns
-                /(special\s+(?:offer|deal|discount)[^.!?\n]{0,40})/i,
-                // Free delivery
-                /(free\s+(?:delivery|shipping)[^.!?\n]{0,30})/i,
-                // Birthday specific
-                /(birthday\s+(?:reward|freebie|gift|treat)[^.!?\n]{0,30})/i,
-                // Coupon code patterns
-                /((?:code|coupon):\s*[A-Z0-9]{4,15}[^.!?\n]{0,20})/i
-            ];
-            
-            for (let pattern of patterns) {
-                const match = text.match(pattern);
-                if (match && match[1]) {
-                    let offer = match[1].trim();
-                    
-                    // Clean up the offer text
-                    offer = offer.replace(/\s+/g, ' '); // Normalize spaces
-                    offer = offer.replace(/\n/g, ' '); // Remove newlines
-                    
-                    // Remove emojis and special characters
-                    offer = offer.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
-                    offer = offer.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
-                    offer = offer.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
-                    offer = offer.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
-                    offer = offer.replace(/[\u{2600}-\u{26FF}]/gu, '');
-                    offer = offer.replace(/[\u{2700}-\u{27BF}]/gu, '');
-                    offer = offer.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
-                    offer = offer.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-                    
-                    // Clean up double spaces after emoji removal
-                    offer = offer.replace(/\s+/g, ' ').trim();
-                    
-                    offer = offer.substring(0, 100); // Limit length
-                    
-                    // Capitalize first letter
-                    offer = offer.charAt(0).toUpperCase() + offer.slice(1);
-                    
-                    return offer;
-                }
-            }
-            
-            // Fallback: look for offer-related sentences in subject
-            if (subject.length > 10) {
-                let cleanSubject = subject.trim();
-                
-                // Remove common prefixes
-                cleanSubject = cleanSubject.replace(/^(re:|fwd:|fw:)\s*/i, '');
-                
-                // Remove emojis and special characters
-                cleanSubject = cleanSubject.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{2600}-\u{26FF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{2700}-\u{27BF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
-                cleanSubject = cleanSubject.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-                cleanSubject = cleanSubject.replace(/\s+/g, ' ').trim();
-                
-                // If subject contains offer keywords, use it
-                const offerKeywords = /offer|deal|coupon|discount|free|save|special|reward|birthday/i;
-                if (offerKeywords.test(cleanSubject)) {
-                    return cleanSubject.substring(0, 80);
-                }
-            }
-            
-            // Last resort: use subject (cleaned)
-            let cleanedSubject = subject.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{2600}-\u{26FF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{2700}-\u{27BF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
-            cleanedSubject = cleanedSubject.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-            cleanedSubject = cleanedSubject.replace(/\s+/g, ' ').trim();
-            return cleanedSubject.substring(0, 60);
-        }
-
-        function extractExpirationDate(body, emailDate) {
-            // Enhanced patterns to catch more date formats
-            const patterns = [
-                // "expires on January 15, 2025" or "expires January 15 2025"
-                /expires?\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "valid until January 15, 2025"
-                /valid\s+(?:until|through|thru)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "good until January 15, 2025"
-                /good\s+(?:until|through|thru)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "offer ends January 15, 2025"
-                /(?:offer|deal|promotion)\s+ends?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "redeem by January 15, 2025"
-                /redeem\s+by\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "01/15/2025" or "1/15/25"
-                /(?:expires?|valid|good|ends?|redeem)[^\d]*(\d{1,2}\/\d{1,2}\/\d{2,4})/i,
-                // "until 01/15/2025"
-                /(?:until|through|thru|by)\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i,
-                // "Jan 15, 2025" or "Jan 15 2025"
-                /(\w{3,9}\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-                // "2025-01-15" ISO format
-                /(\d{4}-\d{2}-\d{2})/,
-                // "15-Jan-2025" or "15 Jan 2025"
-                /(\d{1,2}[-\s]\w{3,9}[-\s]\d{4})/i,
-                // Just a date without context "January 15, 2025"
-                /(\w{3,9}\s+\d{1,2},\s+\d{4})/i
-            ];
-            
-            for (let pattern of patterns) {
-                const match = body.match(pattern);
-                if (match) {
-                    let dateStr = match[1];
-                    
-                    // Try to parse the date
-                    let parsed = new Date(dateStr);
-                    
-                    // If invalid, try cleaning up the string
-                    if (isNaN(parsed.getTime())) {
-                        // Remove ordinal suffixes (1st, 2nd, 3rd, 4th)
-                        dateStr = dateStr.replace(/(\d+)(?:st|nd|rd|th)/gi, '$1');
-                        parsed = new Date(dateStr);
-                    }
-                    
-                    // Check if date is valid and in the future or reasonable past
-                    if (!isNaN(parsed.getTime())) {
-                        const now = new Date();
-                        const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
-                        const twoYearsFromNow = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
-                        
-                        // Only accept dates within reasonable range
-                        if (parsed >= twoYearsAgo && parsed <= twoYearsFromNow) {
-                            return parsed;
-                        }
-                    }
-                }
-            }
-            
-            // Look for "expires in X days/weeks/months" patterns
-            const relativePatterns = [
-                /expires?\s+in\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
-                /valid\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
-                /good\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i,
-                /redeemable\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i
-            ];
-            
-            for (let pattern of relativePatterns) {
-                const match = body.match(pattern);
-                if (match) {
-                    const amount = parseInt(match[1]);
-                    const unit = match[2].toLowerCase();
-                    
-                    const expiryDate = new Date(emailDate);
-                    if (unit.includes('day')) {
-                        expiryDate.setDate(expiryDate.getDate() + amount);
-                    } else if (unit.includes('week')) {
-                        expiryDate.setDate(expiryDate.getDate() + (amount * 7));
-                    } else if (unit.includes('month')) {
-                        expiryDate.setMonth(expiryDate.getMonth() + amount);
-                    }
-                    return expiryDate;
-                }
-            }
-            
-            // Default: 30 days from email date
-            const defaultExpiry = new Date(emailDate);
-            defaultExpiry.setDate(defaultExpiry.getDate() + 30);
-            return defaultExpiry;
-        }
-
-        function extractLocation(body) {
-            // Look for location patterns in first 1000 characters
-            const text = body.substring(0, 1000);
-            
-            const locationPatterns = [
-                // "Location: 123 Main St"
-                /(?:location|address|visit us|find us):\s*([^\n<]{10,100})/i,
-                // "Store: 123 Main St"
-                /store:\s*([^\n<]{10,100})/i,
-                // "At: 123 Main St"
-                /at:\s*(\d+[^\n<]{10,100})/i,
-                // Street address patterns
-                /(\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3}\s+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct))/i,
-                // "Visit us at [location]"
-                /visit\s+us\s+at\s+([^\n<.]{10,100})/i,
-                // Locations page link
-                /locations?\.(?:com|net|org)/i
-            ];
-            
-            for (let pattern of locationPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    if (typeof match[1] === 'string') {
-                        let location = match[1].trim();
-                        
-                        // Clean up HTML entities and tags
-                        location = location.replace(/<[^>]+>/g, '');
-                        location = location.replace(/&nbsp;/g, ' ');
-                        location = location.replace(/&amp;/g, '&');
-                        
-                        // Remove extra whitespace
-                        location = location.replace(/\s+/g, ' ');
-                        
-                        if (location.length > 10 && location.length < 200) {
-                            return location;
-                        }
-                    } else {
-                        // Found "locations.com" or similar - indicate online
-                        return 'See website for locations';
-                    }
-                }
-            }
-            
-            // Check if it mentions online/delivery only
-            if (/online\s+only|delivery\s+only|mobile\s+app/i.test(text)) {
-                return 'Online/App only';
-            }
-            
-            return 'Check email for details';
-        }
-
-        function formatExpiration(date) {
-            const now = new Date();
-            const diff = date - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
-            if (days < 0) return 'Expired';
-            if (days === 0) return 'Today';
-            if (days === 1) return 'Tomorrow';
-            if (days < 7) return `${days} days`;
-            if (days < 30) return `${Math.floor(days / 7)} weeks`;
-            return date.toLocaleDateString();
-        }
-
-        function getExpiryClass(date) {
-            const now = new Date();
-            const diff = date - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
-            if (days < 7) return 'soon';
-            if (days < 30) return 'medium';
-            return 'later';
-        }
-
-        function removeDuplicates(offers) {
-            const seen = new Set();
-            return offers.filter(offer => {
-                const key = `${offer.restaurant}-${offer.offer}`.toLowerCase();
-                if (seen.has(key)) return false;
-                seen.add(key);
+            // Better deduplication: by messageId first, then by restaurant+offer text
+            const seenContent = new Set();
+            allOffers = allOffers.filter(offer => {
+                const key = `${offer.restaurant.toLowerCase().replace(/[^a-z]/g,'')}-${offer.offer.substring(0,30).toLowerCase().replace(/[^a-z]/g,'')}`;
+                if (seenContent.has(key)) return false;
+                seenContent.add(key);
                 return true;
             });
-        }
 
-        function displayOffers(birthdayOffers, regularOffers) {
-            const birthdaySection = document.getElementById('birthdaySection');
-            const regularSection = document.getElementById('regularSection');
-            const birthdayContainer = document.getElementById('birthdayOffers');
-            const regularContainer = document.getElementById('regularOffers');
-            
-            // Filter based on settings
-            let displayBirthday = birthdayOffers;
-            let displayRegular = regularOffers;
-            
-            // Filter out expired offers (always)
+            // Filter out very old expired offers
             const now = new Date();
-            now.setHours(0, 0, 0, 0); // Reset to start of day for comparison
-            displayBirthday = displayBirthday.filter(o => o.expiresDate >= now);
-            displayRegular = displayRegular.filter(o => o.expiresDate >= now);
-            
-            // Filter based on showUsedOffers setting
-            if (!showUsedOffers) {
-                displayBirthday = displayBirthday.filter(o => !o.isUsed);
-                displayRegular = displayRegular.filter(o => !o.isUsed);
-            }
-            
-            // Filter based on showDismissedOffers setting
-            if (!showDismissedOffers) {
-                displayBirthday = displayBirthday.filter(o => !o.isDismissed);
-                displayRegular = displayRegular.filter(o => !o.isDismissed);
-            }
-            
-            // Filter out birthday offers if hideBirthdayOffers is checked
-            if (hideBirthdayOffers) {
-                displayBirthday = [];
-            }
-            
-            document.getElementById('birthdayCount').textContent = displayBirthday.length;
-            document.getElementById('regularCount').textContent = displayRegular.length;
+            const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+            allOffers = allOffers.filter(o => o.expiresDate >= thirtyDaysAgo);
 
-            if (displayBirthday.length > 0) {
-                birthdaySection.style.display = 'block';
-                birthdayContainer.innerHTML = displayBirthday.map(offer => createOfferCard(offer, true)).join('');
+            // Add IDs and status
+            allOffers.forEach(offer => {
+                offer.id = generateOfferId(offer);
+                offer.isUsed = isOfferUsed(offer.id);
+                offer.isDismissed = isOfferDismissed(offer.id);
+            });
+
+            allOffersData = allOffers;
+
+            // Show UI
+            document.getElementById('searchBar').style.display = 'block';
+            document.getElementById('filterRow').style.display = 'flex';
+            document.getElementById('viewSortRow').style.display = 'flex';
+            document.getElementById('bottomActions').style.display = 'flex';
+
+            renderListView();
+            renderCalendar(currentCalendarDate);
+            updateStatPills();
+
+            document.getElementById('status').textContent = `${allOffers.length} offers found`;
+
+            // Schedule notifications
+            if (Notification.permission === 'granted') scheduleExpiryNotifications();
+            else if (Notification.permission === 'default') {
+                document.getElementById('notifBanner').classList.remove('hidden');
+            }
+
+        } catch (err) {
+            console.error('Scan error:', err);
+            if (err.status === 401 || err.status === 403) {
+                clearAccessToken();
+                document.getElementById('status').textContent = 'Session expired — tap Connect Gmail';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('connectBtn').textContent = 'Connect Gmail';
+                document.getElementById('connectBtn').classList.remove('connected');
             } else {
-                birthdaySection.style.display = 'none';
+                document.getElementById('status').textContent = 'Error scanning — try again';
             }
+        } finally {
+            isScanning = false;
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+    }
 
-            if (displayRegular.length > 0) {
-                regularSection.style.display = 'block';
-                regularContainer.innerHTML = displayRegular.map(offer => createOfferCard(offer, false)).join('');
-            } else {
-                regularSection.style.display = 'none';
-            }
+    // ── STAT PILLS ──
+    function updateStatPills() {
+        const now = new Date(); now.setHours(0,0,0,0);
+        const active = allOffersData.filter(o => !o.isDismissed && o.expiresDate >= now);
+        const urgent = active.filter(o => {
+            const days = Math.floor((o.expiresDate - now)/(1000*60*60*24));
+            return days <= 3 && !o.isUsed;
+        });
+        const bday = active.filter(o => o.isBirthday && !o.isUsed);
 
-            // Add click handlers
-            document.querySelectorAll('.offer-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // Don't toggle if clicking the button
-                    if (!e.target.classList.contains('mark-used-btn') && !e.target.classList.contains('dismiss-btn')) {
-                        this.classList.toggle('expanded');
-                    }
-                });
-            });
+        let html = `<span class="stat-pill">${active.length} active</span>`;
+        if (urgent.length) html += `<span class="stat-pill urgent">🔥 ${urgent.length} expiring</span>`;
+        if (bday.length) html += `<span class="stat-pill birthday">🎂 ${bday.length}</span>`;
+        document.getElementById('statPills').innerHTML = html;
+    }
 
-            // Add mark as used button handlers
-            document.querySelectorAll('.mark-used-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const offerId = this.dataset.offerId;
-                    const card = this.closest('.offer-card');
-                    
-                    if (this.classList.contains('marked')) {
-                        // Unmark as used
-                        unmarkOfferAsUsed(offerId);
-                        this.textContent = '✓ Mark as Used';
-                        this.classList.remove('marked');
-                        card.classList.remove('used');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isUsed = false;
-                    } else {
-                        // Mark as used
-                        markOfferAsUsed(offerId);
-                        this.textContent = '✓ Marked as Used';
-                        this.classList.add('marked');
-                        card.classList.add('used');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isUsed = true;
-                    }
-                    
-                    // Refresh calendar if visible
-                    if (document.getElementById('calendarView').style.display !== 'none') {
-                        renderCalendar(currentCalendarDate);
-                    }
-                });
-            });
+    // ── RENDER LIST ──
+    function renderListView() {
+        const now = new Date(); now.setHours(0,0,0,0);
+        let offers = [...allOffersData];
 
-            // Add dismiss button handlers
-            document.querySelectorAll('.dismiss-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const offerId = this.dataset.offerId;
-                    const card = this.closest('.offer-card');
-                    
-                    if (this.classList.contains('dismissed')) {
-                        // Undismiss
-                        undismissOffer(offerId);
-                        this.textContent = '🗑️ Dismiss';
-                        this.classList.remove('dismissed');
-                        card.classList.remove('dismissed');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isDismissed = false;
-                    } else {
-                        // Dismiss
-                        dismissOffer(offerId);
-                        this.textContent = '↩️ Undismiss';
-                        this.classList.add('dismissed');
-                        card.classList.add('dismissed');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isDismissed = true;
-                    }
-                    
-                    // Refresh display if not showing dismissed
-                    if (!showDismissedOffers) {
-                        const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-                        const regularOffers = allOffersData.filter(o => !o.isBirthday);
-                        displayOffers(birthdayOffers, regularOffers);
-                    }
-                    
-                    // Refresh calendar if visible
-                    if (document.getElementById('calendarView').style.display !== 'none') {
-                        renderCalendar(currentCalendarDate);
-                    }
-                });
-            });
+        // Search filter
+        if (searchQuery) {
+            offers = offers.filter(o => o.restaurant.toLowerCase().includes(searchQuery) || o.offer.toLowerCase().includes(searchQuery));
         }
 
-        function createOfferCard(offer, isBirthday) {
-            const isUsed = offer.isUsed || false;
-            const isDismissed = offer.isDismissed || false;
-            const usedClass = isUsed ? 'used' : '';
-            const dismissedClass = isDismissed ? 'dismissed' : '';
-            const buttonText = isUsed ? '✓ Marked as Used' : '✓ Mark as Used';
-            const buttonClass = isUsed ? 'marked' : '';
-            
-            // Check if offer is expired
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const expires = new Date(offer.expiresDate);
-            expires.setHours(0, 0, 0, 0);
-            const isExpired = expires < today;
-            
-            const dismissText = isDismissed ? '↩️ Undismiss' : '🗑️ Dismiss';
-            const dismissBtnClass = isDismissed ? 'dismissed' : '';
-            
-            // Show dismiss button for all offers
-            const dismissButton = `
-                <button class="dismiss-btn ${dismissBtnClass}" data-offer-id="${offer.id}">
-                    ${dismissText}
-                </button>
-            `;
-            
-            const gmailUrl = offer.messageId 
-                ? `https://mail.google.com/mail/u/0/#all/${offer.messageId}` 
-                : null;
+        // Active filter
+        if (activeFilter === 'urgent') offers = offers.filter(o => { const d = Math.floor((o.expiresDate - now)/(864e5)); return d >= 0 && d <= 7 && !o.isUsed && !o.isDismissed; });
+        else if (activeFilter === 'birthday') offers = offers.filter(o => o.isBirthday);
+        else if (activeFilter === 'unused') offers = offers.filter(o => !o.isUsed && !o.isDismissed);
+        else if (activeFilter === 'used') offers = offers.filter(o => o.isUsed);
+        else if (activeFilter === 'dismissed') offers = offers.filter(o => o.isDismissed);
+        else {
+            // Default: hide expired, respect settings
+            offers = offers.filter(o => o.expiresDate >= now);
+            if (!showUsedOffers) offers = offers.filter(o => !o.isUsed);
+            if (!showDismissedOffers) offers = offers.filter(o => !o.isDismissed);
+            if (hideBirthdayOffers) offers = offers.filter(o => !o.isBirthday);
+        }
 
-            const locationDisplay = (offer.location === 'Check email for details' && gmailUrl)
-                ? `<a href="${gmailUrl}" target="_blank" rel="noopener" style="color:#667eea;text-decoration:none;font-weight:bold;">📨 Open in Gmail</a>`
-                : offer.location;
+        // Sort
+        if (currentSort === 'expiry') offers.sort((a,b) => a.expiresDate - b.expiresDate);
+        else if (currentSort === 'restaurant') offers.sort((a,b) => a.restaurant.localeCompare(b.restaurant));
+        else if (currentSort === 'newest') offers.sort((a,b) => b.emailDate - a.emailDate);
 
-            return `
-                <div class="offer-card ${isBirthday ? 'birthday' : ''} ${usedClass} ${dismissedClass}">
-                    <div class="offer-header">
+        const birthdayOffers = offers.filter(o => o.isBirthday);
+        const regularOffers = offers.filter(o => !o.isBirthday);
+
+        const bdaySection = document.getElementById('birthdaySection');
+        const regSection = document.getElementById('regularSection');
+        const emptyState = document.getElementById('emptyState');
+
+        if (birthdayOffers.length && activeFilter !== 'all' || (activeFilter === 'all' && birthdayOffers.length && !hideBirthdayOffers)) {
+            bdaySection.classList.remove('hidden');
+            document.getElementById('birthdayOffers').innerHTML = birthdayOffers.map(o => createOfferCard(o)).join('');
+        } else {
+            bdaySection.classList.add('hidden');
+        }
+
+        if (regularOffers.length) {
+            regSection.classList.remove('hidden');
+            const label = searchQuery ? `Results for "${searchQuery}"` : activeFilter === 'urgent' ? '🔥 Expiring Within 7 Days' : 'All Offers';
+            document.getElementById('regularLabel').textContent = `${label} (${regularOffers.length})`;
+            document.getElementById('regularOffers').innerHTML = regularOffers.map(o => createOfferCard(o)).join('');
+        } else {
+            regSection.classList.add('hidden');
+        }
+
+        if (!birthdayOffers.length && !regularOffers.length) {
+            emptyState.classList.remove('hidden');
+            document.getElementById('emptySubtext').textContent = searchQuery ? `No offers matching "${searchQuery}"` : activeFilter !== 'all' ? 'No offers match this filter.' : 'No current offers found. Try refreshing.';
+        } else {
+            emptyState.classList.add('hidden');
+        }
+
+        attachCardHandlers();
+        attachSwipeHandlers();
+    }
+
+    // ── CARD HTML ──
+    function createOfferCard(offer) {
+        const isUsed = offer.isUsed || false;
+        const isDismissed = offer.isDismissed || false;
+        const now = new Date(); now.setHours(0,0,0,0);
+        const days = Math.floor((offer.expiresDate - now) / 864e5);
+        const urgencyClass = days < 0 ? '' : days <= 3 ? 'urgent-card' : days <= 7 ? 'warn-card' : 'safe-card';
+        const bdayClass = offer.isBirthday ? 'birthday-card' : '';
+
+        const expiryClass = days < 0 ? 'expired' : days <= 3 ? 'soon' : days <= 7 ? 'medium' : 'later';
+        const expiryText = days < 0 ? 'Expired' : days === 0 ? 'TODAY' : days === 1 ? 'TOMORROW' : offer.expiresText;
+
+        const color = avatarColor(offer.restaurant);
+        const initial = offer.restaurant.charAt(0).toUpperCase();
+
+        const gmailUrl = offer.messageId ? `https://mail.google.com/mail/u/0/#all/${offer.messageId}` : null;
+
+        const locationDisplay = (offer.location === 'Check email for details' && gmailUrl)
+            ? `<a href="${gmailUrl}" target="_blank" rel="noopener">📨 Open in Gmail</a>`
+            : offer.location;
+
+        let tags = '';
+        if (offer.isBirthday) tags += `<span class="offer-tag tag-birthday">🎂 Birthday</span>`;
+        if (isUsed) tags += `<span class="offer-tag tag-used">✓ Used</span>`;
+        if (isDismissed) tags += `<span class="offer-tag tag-dismissed">Dismissed</span>`;
+
+        return `
+        <div class="offer-card ${urgencyClass} ${bdayClass} ${isUsed ? 'used' : ''} ${isDismissed ? 'dismissed' : ''}" data-id="${offer.id}">
+            <div class="swipe-hint">🗑️</div>
+            <div class="offer-main">
+                <div class="offer-avatar" style="background:${color}">${initial}</div>
+                <div class="offer-body">
+                    <div class="offer-top">
                         <div class="restaurant-name">${offer.restaurant}</div>
-                        <div class="expires-badge ${getExpiryClass(offer.expiresDate)}">
-                            ${offer.expiresText}
+                        <div class="expiry-badge ${expiryClass}">${expiryText}</div>
+                    </div>
+                    <div class="offer-desc">${offer.offer}</div>
+                    ${tags ? `<div class="offer-tags">${tags}</div>` : ''}
+                </div>
+            </div>
+            <div class="offer-details">
+                <div class="detail-inner">
+                    <div class="detail-row">
+                        <div class="detail-label">What</div>
+                        <div class="detail-value">${offer.offer}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Where</div>
+                        <div class="detail-value">${locationDisplay}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Expires</div>
+                        <div class="detail-value">${offer.expiresDate.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">
+                            Received ${offer.emailDate.toLocaleDateString()}
+                            ${gmailUrl ? ` · <a href="${gmailUrl}" target="_blank" rel="noopener">View in Gmail ↗</a>` : ''}
                         </div>
                     </div>
-                    <div class="offer-preview">${offer.offer}</div>
-                    <div class="offer-details">
-                        <div class="detail-row">
-                            <div class="detail-label">📍 Where:</div>
-                            <div class="detail-value">${locationDisplay}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">🎁 What:</div>
-                            <div class="detail-value">${offer.offer}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">⏰ When:</div>
-                            <div class="detail-value">Expires ${offer.expiresDate.toLocaleDateString()}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">📧 Email:</div>
-                            <div class="detail-value">
-                                Received ${offer.emailDate.toLocaleDateString()}
-                                ${gmailUrl ? `&nbsp;·&nbsp;<a href="${gmailUrl}" target="_blank" rel="noopener" style="color:#667eea;text-decoration:none;">View in Gmail ↗</a>` : ''}
-                            </div>
-                        </div>
-                        <button class="mark-used-btn ${buttonClass}" data-offer-id="${offer.id}">
-                            ${buttonText}
+                    <div class="action-row">
+                        <button class="action-btn btn-used ${isUsed ? 'marked' : ''}" data-offer-id="${offer.id}">
+                            ${isUsed ? '✓ Used' : '✓ Mark Used'}
                         </button>
-                        ${dismissButton}
+                        <button class="action-btn btn-dismiss ${isDismissed ? 'dismissed' : ''}" data-offer-id="${offer.id}">
+                            ${isDismissed ? '↩️ Restore' : '🗑️ Dismiss'}
+                        </button>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        </div>`;
+    }
 
-        function exportToCSV() {
-            if (!allOffersData || allOffersData.length === 0) {
-                alert('No offers to export. Please scan your emails first.');
-                return;
-            }
-
-            // Create CSV header
-            const headers = ['Restaurant', 'Offer', 'Birthday Offer', 'Expires', 'Location', 'Email Date'];
-            
-            // Create CSV rows
-            const rows = allOffersData.map(offer => {
-                return [
-                    escapeCSV(offer.restaurant),
-                    escapeCSV(offer.offer),
-                    offer.isBirthday ? 'Yes' : 'No',
-                    offer.expiresDate.toLocaleDateString(),
-                    escapeCSV(offer.location),
-                    offer.emailDate.toLocaleDateString()
-                ];
+    // ── CARD HANDLERS ──
+    function attachCardHandlers() {
+        document.querySelectorAll('.offer-card .offer-main').forEach(main => {
+            main.addEventListener('click', function() {
+                const card = this.closest('.offer-card');
+                card.classList.toggle('expanded');
             });
-
-            // Combine header and rows
-            const csvContent = [
-                headers.join(','),
-                ...rows.map(row => row.join(','))
-            ].join('\n');
-
-            // Create blob and download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `restaurant-offers-${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function escapeCSV(text) {
-            if (text === null || text === undefined) return '';
-            text = String(text);
-            // Escape quotes and wrap in quotes if contains comma, quote, or newline
-            if (text.includes(',') || text.includes('"') || text.includes('\n')) {
-                return '"' + text.replace(/"/g, '""') + '"';
-            }
-            return text;
-        }
-
-        async function trashOldOffers() {
-            if (!allOffersData || allOffersData.length === 0) {
-                alert('No offers found. Please scan your emails first.');
-                return;
-            }
-
-            // Find offers that are expired by 60+ days
-            const now = new Date();
-            const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
-            
-            const oldExpiredOffers = allOffersData.filter(offer => {
-                return offer.expiresDate < sixtyDaysAgo;
-            });
-
-            if (oldExpiredOffers.length === 0) {
-                alert('No old expired offers found! All your offers are either current or recently expired (less than 60 days old).');
-                return;
-            }
-
-            // Show confirmation dialog with details
-            const confirmMessage = `Found ${oldExpiredOffers.length} offer email${oldExpiredOffers.length > 1 ? 's' : ''} expired by 60+ days.\n\n` +
-                `These emails will be moved to Gmail Trash (you can recover them within 30 days).\n\n` +
-                `Continue?`;
-            
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Show progress
-            document.getElementById('status').textContent = `Moving ${oldExpiredOffers.length} emails to trash...`;
-            document.getElementById('trashBtn').disabled = true;
-
-            let trashedCount = 0;
-            let failedCount = 0;
-
-            for (let offer of oldExpiredOffers) {
-                try {
-                    await gapi.client.gmail.users.messages.trash({
-                        userId: 'me',
-                        id: offer.messageId
-                    });
-                    trashedCount++;
-                } catch (error) {
-                    console.error('Failed to trash email:', offer.messageId, error);
-                    failedCount++;
-                }
-            }
-
-            // Re-enable button
-            document.getElementById('trashBtn').disabled = false;
-
-            // Show results
-            if (failedCount > 0) {
-                alert(`Moved ${trashedCount} email${trashedCount > 1 ? 's' : ''} to trash.\n${failedCount} failed - check console for details.`);
-                document.getElementById('status').textContent = `Moved ${trashedCount} to trash, ${failedCount} failed`;
-            } else {
-                alert(`Successfully moved ${trashedCount} old expired offer email${trashedCount > 1 ? 's' : ''} to trash!`);
-                document.getElementById('status').textContent = `Moved ${trashedCount} emails to trash`;
-            }
-
-            // Refresh offers to remove trashed ones
-            await scanEmails();
-        }
-
-        function renderCalendar(date) {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            
-            // Set header
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
-            document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
-            
-            // Get first day of month and number of days
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDayOfWeek = firstDay.getDay();
-            
-            // Get days from previous month
-            const prevMonthLastDay = new Date(year, month, 0).getDate();
-            
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-            
-            // Day headers
-            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'calendar-day-header';
-                header.textContent = day;
-                grid.appendChild(header);
-            });
-            
-            // Previous month days
-            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-                const dayNum = prevMonthLastDay - i;
-                const dayCell = createCalendarDay(dayNum, new Date(year, month - 1, dayNum), true);
-                grid.appendChild(dayCell);
-            }
-            
-            // Current month days
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const currentDate = new Date(year, month, day);
-                const isToday = currentDate.getTime() === today.getTime();
-                const dayCell = createCalendarDay(day, currentDate, false, isToday);
-                grid.appendChild(dayCell);
-            }
-            
-            // Next month days to fill grid
-            const totalCells = grid.children.length - 7; // Minus day headers
-            const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
-            
-            for (let day = 1; day <= remainingCells; day++) {
-                const dayCell = createCalendarDay(day, new Date(year, month + 1, day), true);
-                grid.appendChild(dayCell);
-            }
-        }
-
-        function createCalendarDay(dayNum, date, otherMonth = false, isToday = false) {
-            const dayCell = document.createElement('div');
-            dayCell.className = 'calendar-day';
-            if (otherMonth) dayCell.classList.add('other-month');
-            if (isToday) dayCell.classList.add('today');
-            
-            const dayNumber = document.createElement('div');
-            dayNumber.className = 'calendar-day-number';
-            dayNumber.textContent = dayNum;
-            dayCell.appendChild(dayNumber);
-            
-            // Find offers expiring on this date
-            const dateStr = date.toDateString();
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
-            let offersOnThisDay = allOffersData.filter(offer => {
-                return offer.expiresDate.toDateString() === dateStr;
-            });
-            
-            // Filter out expired offers (always)
-            offersOnThisDay = offersOnThisDay.filter(o => o.expiresDate >= now);
-            
-            // Filter used offers if toggle is off
-            if (!showUsedOffers) {
-                offersOnThisDay = offersOnThisDay.filter(o => !o.isUsed);
-            }
-            
-            // Filter dismissed offers if toggle is off
-            if (!showDismissedOffers) {
-                offersOnThisDay = offersOnThisDay.filter(o => !o.isDismissed);
-            }
-            
-            // Filter birthday offers if hideBirthdayOffers is checked
-            if (hideBirthdayOffers) {
-                offersOnThisDay = offersOnThisDay.filter(o => !o.isBirthday);
-            }
-            
-            if (offersOnThisDay.length > 0) {
-                // Show up to 3 offers
-                const displayOffers = offersOnThisDay.slice(0, 3);
-                displayOffers.forEach(offer => {
-                    const dot = document.createElement('div');
-                    dot.className = 'calendar-offer-dot';
-                    if (offer.isBirthday) dot.classList.add('birthday');
-                    if (offer.isUsed) dot.classList.add('used');
-                    dot.textContent = offer.restaurant;
-                    dot.title = offer.offer + (offer.isUsed ? ' (Used)' : '');
-                    dayCell.appendChild(dot);
-                });
-                
-                // Show count if more than 3
-                if (offersOnThisDay.length > 3) {
-                    const countBadge = document.createElement('div');
-                    countBadge.className = 'calendar-offer-count';
-                    countBadge.textContent = `+${offersOnThisDay.length - 3}`;
-                    dayCell.appendChild(countBadge);
-                }
-                
-                // Add click handler to show all offers
-                dayCell.style.cursor = 'pointer';
-                dayCell.addEventListener('click', () => showOffersModal(date, offersOnThisDay));
-            }
-            
-            return dayCell;
-        }
-
-        function showOffersModal(date, offers) {
-            const modal = document.getElementById('offersModal');
-            const modalDate = document.getElementById('modalDate');
-            const modalOffers = document.getElementById('modalOffers');
-            
-            modalDate.textContent = date.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            
-            modalOffers.innerHTML = offers.map(offer => createOfferCard(offer, offer.isBirthday)).join('');
-            
-            // Add click handlers for expanded cards
-            modalOffers.querySelectorAll('.offer-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // Don't toggle if clicking the button
-                    if (!e.target.classList.contains('mark-used-btn') && !e.target.classList.contains('dismiss-btn')) {
-                        this.classList.toggle('expanded');
-                    }
-                });
-            });
-            
-            // Add mark as used button handlers
-            modalOffers.querySelectorAll('.mark-used-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const offerId = this.dataset.offerId;
-                    const card = this.closest('.offer-card');
-                    
-                    if (this.classList.contains('marked')) {
-                        // Unmark as used
-                        unmarkOfferAsUsed(offerId);
-                        this.textContent = '✓ Mark as Used';
-                        this.classList.remove('marked');
-                        card.classList.remove('used');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isUsed = false;
-                    } else {
-                        // Mark as used
-                        markOfferAsUsed(offerId);
-                        this.textContent = '✓ Marked as Used';
-                        this.classList.add('marked');
-                        card.classList.add('used');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isUsed = true;
-                    }
-                    
-                    // Refresh calendar
-                    renderCalendar(currentCalendarDate);
-                    
-                    // Refresh list view if visible
-                    if (document.getElementById('listView').style.display !== 'none') {
-                        const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-                        const regularOffers = allOffersData.filter(o => !o.isBirthday);
-                        displayOffers(birthdayOffers, regularOffers);
-                    }
-                });
-            });
-            
-            // Add dismiss button handlers
-            modalOffers.querySelectorAll('.dismiss-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const offerId = this.dataset.offerId;
-                    const card = this.closest('.offer-card');
-                    
-                    if (this.classList.contains('dismissed')) {
-                        // Undismiss
-                        undismissOffer(offerId);
-                        this.textContent = '🗑️ Dismiss';
-                        this.classList.remove('dismissed');
-                        card.classList.remove('dismissed');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isDismissed = false;
-                    } else {
-                        // Dismiss
-                        dismissOffer(offerId);
-                        this.textContent = '↩️ Undismiss';
-                        this.classList.add('dismissed');
-                        card.classList.add('dismissed');
-                        
-                        // Update the offer in allOffersData
-                        const offer = allOffersData.find(o => o.id === offerId);
-                        if (offer) offer.isDismissed = true;
-                    }
-                    
-                    // Refresh calendar
-                    renderCalendar(currentCalendarDate);
-                    
-                    // Refresh list view if visible and not showing dismissed
-                    if (!showDismissedOffers && document.getElementById('listView').style.display !== 'none') {
-                        const birthdayOffers = allOffersData.filter(o => o.isBirthday);
-                        const regularOffers = allOffersData.filter(o => !o.isBirthday);
-                        displayOffers(birthdayOffers, regularOffers);
-                    }
-                });
-            });
-            
-            modal.classList.add('active');
-        }
-    </script>
-
-    <script>
-        // Register service worker for PWA install support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => {
-                    console.log('Service worker registration failed:', err);
-                });
-            });
-        }
-
-        // Show install prompt when available
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show install button if you want one in the UI
         });
-    </script>
+
+        document.querySelectorAll('.btn-used').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.dataset.offerId;
+                const offer = allOffersData.find(o => o.id === id);
+                if (!offer) return;
+                offer.isUsed = !offer.isUsed;
+                offer.isUsed ? markOfferAsUsed(id) : unmarkOfferAsUsed(id);
+                renderListView();
+                updateStatPills();
+            });
+        });
+
+        document.querySelectorAll('.btn-dismiss').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.dataset.offerId;
+                const offer = allOffersData.find(o => o.id === id);
+                if (!offer) return;
+                offer.isDismissed = !offer.isDismissed;
+                offer.isDismissed ? dismissOffer(id) : undismissOffer(id);
+                renderListView();
+                updateStatPills();
+            });
+        });
+    }
+
+    // ── SWIPE TO DISMISS ──
+    function attachSwipeHandlers() {
+        document.querySelectorAll('.offer-card').forEach(card => {
+            let startX = 0, startY = 0, dx = 0;
+            let swiping = false;
+
+            card.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                dx = 0; swiping = false;
+            }, { passive: true });
+
+            card.addEventListener('touchmove', e => {
+                dx = e.touches[0].clientX - startX;
+                const dy = Math.abs(e.touches[0].clientY - startY);
+                if (Math.abs(dx) > dy && Math.abs(dx) > 10) {
+                    swiping = true;
+                    if (dx < 0) {
+                        card.classList.add('swiping');
+                        card.style.transform = `translateX(${Math.max(dx, -80)}px)`;
+                    }
+                }
+            }, { passive: true });
+
+            card.addEventListener('touchend', () => {
+                card.classList.remove('swiping');
+                card.style.transform = '';
+                if (swiping && dx < -60) {
+                    const id = card.dataset.id;
+                    const offer = allOffersData.find(o => o.id === id);
+                    if (offer && !offer.isDismissed) {
+                        offer.isDismissed = true;
+                        dismissOffer(id);
+                        renderListView();
+                        updateStatPills();
+                    }
+                }
+            });
+        });
+    }
+
+    // ── CALENDAR ──
+    function renderCalendar(date) {
+        const year = date.getFullYear(), month = date.getMonth();
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        document.getElementById('calMonthLabel').textContent = `${monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDow = firstDay.getDay();
+        const today = new Date(); today.setHours(0,0,0,0);
+        const now = new Date(); now.setHours(0,0,0,0);
+
+        const grid = document.getElementById('calGrid');
+        grid.innerHTML = '';
+
+        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+            const h = document.createElement('div');
+            h.className = 'cal-day-header'; h.textContent = d;
+            grid.appendChild(h);
+        });
+
+        const prevDays = new Date(year, month, 0).getDate();
+        for (let i = startDow - 1; i >= 0; i--) {
+            grid.appendChild(makeCalDay(prevDays - i, new Date(year, month-1, prevDays-i), true, false));
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dt = new Date(year, month, d);
+            grid.appendChild(makeCalDay(d, dt, false, dt.getTime() === today.getTime()));
+        }
+
+        const totalCells = grid.children.length - 7;
+        const remaining = (Math.ceil(totalCells / 7) * 7) - totalCells;
+        for (let d = 1; d <= remaining; d++) {
+            grid.appendChild(makeCalDay(d, new Date(year, month+1, d), true, false));
+        }
+    }
+
+    function makeCalDay(num, date, other, isToday) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day' + (other ? ' other-month' : '') + (isToday ? ' today' : '');
+
+        const numEl = document.createElement('div');
+        numEl.className = 'cal-day-num'; numEl.textContent = num;
+        cell.appendChild(numEl);
+
+        const now = new Date(); now.setHours(0,0,0,0);
+        let dayOffers = allOffersData.filter(o => o.expiresDate.toDateString() === date.toDateString() && o.expiresDate >= now);
+        if (!showUsedOffers) dayOffers = dayOffers.filter(o => !o.isUsed);
+        if (!showDismissedOffers) dayOffers = dayOffers.filter(o => !o.isDismissed);
+        if (hideBirthdayOffers) dayOffers = dayOffers.filter(o => !o.isBirthday);
+
+        if (dayOffers.length) {
+            dayOffers.slice(0,3).forEach(o => {
+                const days = Math.floor((o.expiresDate - now)/864e5);
+                const cls = o.isBirthday ? 'birthday' : days <= 3 ? 'soon' : days <= 7 ? 'medium' : 'later';
+                const dot = document.createElement('div');
+                dot.className = `cal-dot ${cls}${o.isUsed ? ' used' : ''}`;
+                dot.textContent = o.restaurant;
+                cell.appendChild(dot);
+            });
+            if (dayOffers.length > 3) {
+                const more = document.createElement('div');
+                more.className = 'cal-more';
+                more.textContent = `+${dayOffers.length - 3} more`;
+                cell.appendChild(more);
+            }
+            cell.style.cursor = 'pointer';
+            cell.addEventListener('click', () => showCalModal(date, dayOffers));
+        }
+
+        return cell;
+    }
+
+    function showCalModal(date, offers) {
+        document.getElementById('modalDate').textContent = date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+        document.getElementById('modalOffers').innerHTML = offers.map(o => createOfferCard(o)).join('');
+        document.getElementById('calModal').classList.add('active');
+        attachCardHandlers();
+    }
+
+    // ── OFFER STATE ──
+    function generateOfferId(offer) {
+        return `${offer.restaurant}-${offer.offer}-${offer.expiresDate.toISOString()}`.replace(/[^a-zA-Z0-9-]/g, '');
+    }
+
+    function getUsedOffers() { return JSON.parse(localStorage.getItem('used_offers') || '[]'); }
+    function markOfferAsUsed(id) { const u = getUsedOffers(); if (!u.includes(id)) { u.push(id); localStorage.setItem('used_offers', JSON.stringify(u)); } }
+    function unmarkOfferAsUsed(id) { localStorage.setItem('used_offers', JSON.stringify(getUsedOffers().filter(i => i !== id))); }
+    function isOfferUsed(id) { return getUsedOffers().includes(id); }
+
+    function getDismissedOffers() { return JSON.parse(localStorage.getItem('dismissed_offers') || '[]'); }
+    function dismissOffer(id) { const d = getDismissedOffers(); if (!d.includes(id)) { d.push(id); localStorage.setItem('dismissed_offers', JSON.stringify(d)); } }
+    function undismissOffer(id) { localStorage.setItem('dismissed_offers', JSON.stringify(getDismissedOffers().filter(i => i !== id))); }
+    function isOfferDismissed(id) { return getDismissedOffers().includes(id); }
+
+    // ── EMAIL PARSING (unchanged from original) ──
+    function cleanHtmlText(html) {
+        let text = html.replace(/<style[^>]*>.*?<\/style>/gi, '');
+        text = text.replace(/<script[^>]*>.*?<\/script>/gi, '');
+        text = text.replace(/<[^>]+>/g, ' ');
+        text = text.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&rsquo;/g, "'").replace(/&lsquo;/g, "'").replace(/&rdquo;/g, '"').replace(/&ldquo;/g, '"');
+        text = text.replace(/\s+/g, ' ').trim();
+        text = text.replace(/[\u{1F600}-\u{1F64F}]/gu, '').replace(/[\u{1F300}-\u{1F5FF}]/gu, '').replace(/[\u{1F680}-\u{1F6FF}]/gu, '').replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '').replace(/[\u{2600}-\u{26FF}]/gu, '').replace(/[\u{2700}-\u{27BF}]/gu, '').replace(/[\u{1F900}-\u{1F9FF}]/gu, '').replace(/[\u{1FA00}-\u{1FA6F}]/gu, '').replace(/[\u{1FA70}-\u{1FAFF}]/gu, '').replace(/[\u{FE00}-\u{FE0F}]/gu, '').replace(/[\u{200D}]/gu, '');
+        text = text.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+        return text.replace(/\s+/g, ' ').trim();
+    }
+
+    function parseEmailForOffer(message) {
+        try {
+            const headers = message.payload.headers;
+            const subject = headers.find(h => h.name === 'Subject')?.value || '';
+            const from = headers.find(h => h.name === 'From')?.value || '';
+            const date = new Date(parseInt(message.internalDate));
+            if (isNaN(date.getTime())) return null;
+
+            let body = '';
+            function extractBody(payload) {
+                if (payload.body?.data) { try { body += atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/')); } catch(e) {} }
+                if (payload.parts) {
+                    for (let part of payload.parts) {
+                        if (part.mimeType === 'text/plain' || part.mimeType === 'text/html') extractBody(part);
+                        else if (part.mimeType?.startsWith('multipart/')) extractBody(part);
+                    }
+                }
+            }
+            extractBody(message.payload);
+            body = cleanHtmlText(body);
+
+            const foodKeywords = ['restaurant','food','pizza','burger','coffee','dining','meal','cafe','eat','sushi','taco','sandwich','delivery','kitchen','grill','bistro','diner','wings','bbq','chicken','steak'];
+            const offerKeywords = ['offer','deal','coupon','discount','free','off','%','save','reward','promo','special','birthday','bonus','points','loyalty'];
+            const knownRestaurants = ['burger king','mcdonald','wendy','subway','chick-fil-a','taco bell','kfc','pizza hut','domino','papa john','chipotle','panda express','olive garden','red lobster','buffalo wild','outback','applebee','chili','doordash','ubereats','grubhub','firehouse','jimmy john','panera','starbucks','dunkin'];
+            const text = (subject + ' ' + body + ' ' + from).toLowerCase();
+
+            if (!(foodKeywords.some(k => text.includes(k)) && offerKeywords.some(k => text.includes(k))) && !knownRestaurants.some(k => text.includes(k))) return null;
+
+            const restaurant = extractRestaurantName(from, subject, body);
+            if (!restaurant || restaurant.length < 1 || restaurant === 'Restaurant Offer') {
+                const fm = from.match(/^([^<@]+)/); if (!fm) return null;
+            }
+
+            const isBirthday = /birthday|b-day|bday|born|celebration/i.test(text);
+            const offer = extractOfferDetails(subject, body);
+            let expiresDate = extractExpirationDate(body, date);
+            if (!expiresDate || isNaN(expiresDate.getTime())) { expiresDate = new Date(date); expiresDate.setDate(expiresDate.getDate() + 90); }
+            const location = extractLocation(body);
+
+            return { restaurant, offer, isBirthday, expiresDate, expiresText: formatExpiration(expiresDate), location, emailDate: date, subject, messageId: message.id };
+        } catch (e) { return null; }
+    }
+
+    function extractRestaurantName(from, subject, body) {
+        const fromMatch = from.match(/^([^<@]+)/);
+        if (fromMatch) {
+            let name = fromMatch[1].trim();
+            name = name.replace(/^(info|no-reply|noreply|contact|support|team|hello|hi|news|marketing|offers|deals)\s*/i, '');
+            name = name.replace(/\s+(info|no-reply|noreply|contact|support|team)$/i, '');
+            name = name.replace(/\s*\|\s*.*/g, '').replace(/\s*-\s*.*/g, '');
+            name = name.replace(/["""]/g, '').trim();
+            name = name.replace(/[\u{1F600}-\u{1F64F}]/gu, '').replace(/[\u{1F300}-\u{1F5FF}]/gu, '').replace(/[\u{1F680}-\u{1F6FF}]/gu, '').replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '').replace(/[\u{2600}-\u{26FF}]/gu, '').replace(/[\u{2700}-\u{27BF}]/gu, '').replace(/[\u{1F900}-\u{1F9FF}]/gu, '').replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+            name = name.replace(/\s+/g, ' ').trim();
+            if (name.length > 2 && name.length < 50) return name;
+        }
+        const subjectPatterns = [/(?:your|from|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:reward|offer|deal|coupon)/i, /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s*[:|-]/i, /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})/];
+        for (let p of subjectPatterns) { const m = subject.match(p); if (m?.[1] && m[1].length > 2 && m[1].length < 50) return m[1].trim(); }
+        const bodyPatterns = [/(?:welcome to|visit|from|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:restaurant|cafe|kitchen|grill|eatery)/i, /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?:Restaurant|Cafe|Coffee|Kitchen|Grill|Bar|Pizzeria|Deli)/i];
+        for (let p of bodyPatterns) { const m = body.substring(0,500).match(p); if (m?.[1] && m[1].length > 2 && m[1].length < 50) return m[1].trim(); }
+        if (fromMatch) { let n = fromMatch[1].trim().replace(/[^a-zA-Z0-9\s&'-]/g,'').trim(); if (n.length > 2 && n.length < 50) return n; }
+        return 'Restaurant Offer';
+    }
+
+    function extractOfferDetails(subject, body) {
+        const text = body + ' ' + subject;
+        const patterns = [/(\d+%\s+off[^.!?\n]{0,30})/i, /(\$\d+(?:\.\d{2})?\s+off[^.!?\n]{0,30})/i, /(buy\s+(?:one|1)\s+get\s+(?:one|1)(?:\s+free)?[^.!?\n]{0,30})/i, /(bogo[^.!?\n]{0,30})/i, /(free\s+[a-z\s]{3,30}(?:with|when)[^.!?\n]{0,40})/i, /(complimentary\s+[a-z\s]{3,30})/i, /((?:get|receive)\s+(?:a\s+)?free\s+[a-z\s]{3,30})/i, /(\d+\s+(?:points|rewards)[^.!?\n]{0,30})/i, /(special\s+(?:offer|deal|discount)[^.!?\n]{0,40})/i, /(free\s+(?:delivery|shipping)[^.!?\n]{0,30})/i, /(birthday\s+(?:reward|freebie|gift|treat)[^.!?\n]{0,30})/i, /((?:code|coupon):\s*[A-Z0-9]{4,15}[^.!?\n]{0,20})/i];
+        for (let p of patterns) {
+            const m = text.match(p);
+            if (m?.[1]) {
+                let offer = m[1].replace(/\s+/g,' ').replace(/\n/g,' ');
+                offer = offer.replace(/[\u{1F600}-\u{1F64F}]/gu,'').replace(/[\u{1F300}-\u{1F5FF}]/gu,'').replace(/[\u{1F680}-\u{1F6FF}]/gu,'').replace(/[\u{1F1E0}-\u{1F1FF}]/gu,'').replace(/[\u{2600}-\u{26FF}]/gu,'').replace(/[\u{2700}-\u{27BF}]/gu,'').replace(/[\u{1F900}-\u{1F9FF}]/gu,'').replace(/[\x00-\x1F\x7F-\x9F]/g,'');
+                offer = offer.replace(/\s+/g,' ').trim().substring(0,100);
+                return offer.charAt(0).toUpperCase() + offer.slice(1);
+            }
+        }
+        let s = subject.trim().replace(/^(re:|fwd:|fw:)\s*/i,'');
+        s = s.replace(/[\u{1F600}-\u{1F64F}]/gu,'').replace(/[\u{1F300}-\u{1F5FF}]/gu,'').replace(/[\u{1F680}-\u{1F6FF}]/gu,'').replace(/[\u{1F1E0}-\u{1F1FF}]/gu,'').replace(/[\u{2600}-\u{26FF}]/gu,'').replace(/[\u{2700}-\u{27BF}]/gu,'').replace(/[\u{1F900}-\u{1F9FF}]/gu,'').replace(/[\x00-\x1F\x7F-\x9F]/g,'').replace(/\s+/g,' ').trim();
+        if (/offer|deal|coupon|discount|free|save|special|reward|birthday/i.test(s)) return s.substring(0,80);
+        return s.substring(0,60);
+    }
+
+    function extractExpirationDate(body, emailDate) {
+        const patterns = [/expires?\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /valid\s+(?:until|through|thru)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /good\s+(?:until|through|thru)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /(?:offer|deal|promotion)\s+ends?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /redeem\s+by\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /(?:expires?|valid|good|ends?|redeem)[^\d]*(\d{1,2}\/\d{1,2}\/\d{2,4})/i, /(?:until|through|thru|by)\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i, /(\w{3,9}\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i, /(\d{4}-\d{2}-\d{2})/, /(\d{1,2}[-\s]\w{3,9}[-\s]\d{4})/i, /(\w{3,9}\s+\d{1,2},\s+\d{4})/i];
+        for (let p of patterns) {
+            const m = body.match(p);
+            if (m) {
+                let ds = m[1]; let parsed = new Date(ds);
+                if (isNaN(parsed.getTime())) { ds = ds.replace(/(\d+)(?:st|nd|rd|th)/gi,'$1'); parsed = new Date(ds); }
+                if (!isNaN(parsed.getTime())) {
+                    const now = new Date();
+                    const twoYearsAgo = new Date(now.getFullYear()-2, now.getMonth(), now.getDate());
+                    const twoYearsFromNow = new Date(now.getFullYear()+2, now.getMonth(), now.getDate());
+                    if (parsed >= twoYearsAgo && parsed <= twoYearsFromNow) return parsed;
+                }
+            }
+        }
+        const relPatterns = [/expires?\s+in\s+(\d+)\s+(day|days|week|weeks|month|months)/i, /valid\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i, /good\s+for\s+(\d+)\s+(day|days|week|weeks|month|months)/i];
+        for (let p of relPatterns) {
+            const m = body.match(p);
+            if (m) {
+                const amt = parseInt(m[1]); const unit = m[2].toLowerCase();
+                const d = new Date(emailDate);
+                if (unit.includes('day')) d.setDate(d.getDate()+amt);
+                else if (unit.includes('week')) d.setDate(d.getDate()+amt*7);
+                else if (unit.includes('month')) d.setMonth(d.getMonth()+amt);
+                return d;
+            }
+        }
+        const def = new Date(emailDate); def.setDate(def.getDate()+30); return def;
+    }
+
+    function extractLocation(body) {
+        const text = body.substring(0,1000);
+        const patterns = [/(?:location|address|visit us|find us):\s*([^\n<]{10,100})/i, /store:\s*([^\n<]{10,100})/i, /at:\s*(\d+[^\n<]{10,100})/i, /(\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3}\s+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct))/i, /visit\s+us\s+at\s+([^\n<.]{10,100})/i, /locations?\.(?:com|net|org)/i];
+        for (let p of patterns) {
+            const m = text.match(p);
+            if (m) {
+                if (typeof m[1] === 'string') { let loc = m[1].trim().replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' '); if (loc.length > 10 && loc.length < 200) return loc; }
+                else return 'See website for locations';
+            }
+        }
+        if (/online\s+only|delivery\s+only|mobile\s+app/i.test(text)) return 'Online/App only';
+        return 'Check email for details';
+    }
+
+    function formatExpiration(date) {
+        const now = new Date();
+        const days = Math.floor((date - now) / 864e5);
+        if (days < 0) return 'Expired';
+        if (days === 0) return 'Today';
+        if (days === 1) return 'Tomorrow';
+        if (days < 7) return `${days} days`;
+        if (days < 30) return `${Math.floor(days/7)} weeks`;
+        return date.toLocaleDateString();
+    }
+
+    function getExpiryClass(date) {
+        const days = Math.floor((date - new Date()) / 864e5);
+        if (days < 7) return 'soon'; if (days < 30) return 'medium'; return 'later';
+    }
+
+    // ── EXPORT ──
+    function exportToCSV() {
+        if (!allOffersData.length) { alert('No offers to export.'); return; }
+        const headers = ['Restaurant','Offer','Birthday','Expires','Location','Email Date'];
+        const rows = allOffersData.map(o => [escapeCSV(o.restaurant), escapeCSV(o.offer), o.isBirthday?'Yes':'No', o.expiresDate.toLocaleDateString(), escapeCSV(o.location), o.emailDate.toLocaleDateString()]);
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+        link.download = `food-offers-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    }
+
+    function escapeCSV(text) {
+        if (!text) return '';
+        text = String(text);
+        return (text.includes(',') || text.includes('"') || text.includes('\n')) ? '"' + text.replace(/"/g,'""') + '"' : text;
+    }
+
+    // ── TRASH ──
+    async function trashOldOffers() {
+        if (!allOffersData.length) { alert('No offers loaded.'); return; }
+        const now = new Date();
+        const sixtyDaysAgo = new Date(now - 60*24*60*60*1000);
+        const old = allOffersData.filter(o => o.expiresDate < sixtyDaysAgo);
+        if (!old.length) { alert('No offers expired 60+ days ago.'); return; }
+        if (!confirm(`Move ${old.length} old expired offer email${old.length>1?'s':''} to Gmail Trash?\n\nYou can recover them within 30 days.`)) return;
+        document.getElementById('status').textContent = `Trashing ${old.length} emails...`;
+        let ok = 0, fail = 0;
+        for (let o of old) {
+            try { await gapi.client.gmail.users.messages.trash({userId:'me', id:o.messageId}); ok++; }
+            catch(e) { fail++; }
+        }
+        document.getElementById('status').textContent = `Trashed ${ok}${fail?`, ${fail} failed`:''}`;
+        if (fail) alert(`${ok} trashed, ${fail} failed.`);
+        else alert(`${ok} old emails moved to trash.`);
+        await scanEmails();
+    }
+
+    // ── PWA ──
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
+        });
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+</script>
 </body>
 </html>
