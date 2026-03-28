@@ -4,10 +4,13 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll([
-                '/restaurant-offers/',
-                '/restaurant-offers/index.html',
-                '/restaurant-offers/manifest.json',
-                '/restaurant-offers/icon.png'
+                return cache.addAll([
+    '/restaurant-offers/',
+    '/restaurant-offers/index.html',
+    '/restaurant-offers/manifest.json',
+    '/restaurant-offers/icon_192x192.png',
+    '/restaurant-offers/icon_512x512.png'
+]);
             ]);
         })
     );
